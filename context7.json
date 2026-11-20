@@ -1,0 +1,23 @@
+{
+  "$schema": "https://context7.com/schema/context7.json",
+  "projectTitle": "Egern",
+  "description": "Rule-based proxy client for iOS, iPadOS and macOS. Covers Profile YAML: proxies and protocols, policy groups, rules and rule sets, DNS, modules, URL/header/body rewrites, HTTP captures, widgets and JavaScript scripting.",
+  "folders": [
+    "docs/en"
+  ],
+  "excludeFolders": [
+    "docs/zh-CN",
+    "scripts",
+    "tests",
+    ".github"
+  ],
+  "excludeFiles": [
+    "llms-full.txt"
+  ],
+  "rules": [
+    "Egern is not Surge, Loon, Quantumult X or mihomo. Use Egern's documented field names; do not substitute another client's syntax even when the YAML would parse.",
+    "Configuration is Profile YAML; scripts use the documented async export default function with the injected ctx object.",
+    "Check every cross-reference by name: proxies, policy groups, DNS upstream groups, rule sets and modules must all exist in the profile.",
+    "If a field or behaviour is not documented here, say so instead of inferring support from a YAML key parsing."
+  ]
+}
