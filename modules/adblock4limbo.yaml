@@ -1,5 +1,5 @@
 name: 毒奶去网页广告
-description: 毒奶去网页广告计划 Adblock4limbo —— 搜索引擎广告与内容农场清除、视频/漫画/小说网站弹窗与视频广告移除。源自 limbopro/Adblock4limbo（Surge/Loon/QX 多格式），转换为原生 Egern 模块，声明式条目全部原生化，脚本直接引用官方远程 JS。
+description: 去网页广告：搜索引擎、视频、漫画、小说站点的弹窗与广告移除（毒奶 Adblock4limbo 移植）。
 author: limbopro, Sliverkiss
 homepage: https://github.com/limbopro/Adblock4limbo
 icon: https://raw.githubusercontent.com/limbopro/Adblock4limbo/main/Adguard/Adblock4limbo.png

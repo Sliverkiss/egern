@@ -1,5 +1,5 @@
 name: 中国人保去广告
-description: 移除中国人保 App 启动开屏、人保头条、猜你喜欢、弹窗、主页及我的页面推广位。首次启用需清除 App 缓存或重装 App 才能生效。
+description: 移除中国人保 App 开屏、弹窗及主页/我的页面推广位。首次启用需清除 App 缓存或重装生效。
 author: 奶思, Sliverkiss
 homepage: https://github.com/Sliverkiss/egern
 icon: https://raw.githubusercontent.com/leiyiyan/resource/main/icons/picc.png
