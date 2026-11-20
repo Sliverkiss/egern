@@ -1,5 +1,5 @@
 name: RevenueCat 通用解锁
-description: RevenueCat 计费类 App 通用解锁（订阅校验 307 至伪造接口）。需清除 App 缓存或重装生效。
+description: RevenueCat 计费类 App 通用解锁，需清缓存或重装生效。
 author: tistzach, Sliverkiss
 homepage: https://github.com/Sliverkiss/egern
 icon: https://raw.githubusercontent.com/BOBOLAOSHIV587/Rules/main/Icons/AppIcons/Image/App/RevenueCat-icon.png
