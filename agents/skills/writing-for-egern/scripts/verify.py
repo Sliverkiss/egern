@@ -207,8 +207,9 @@ def main() -> int:
     for field in REQUIRED_FIELDS:
         if not meta.get(field):
             problems.append(f"metadata: missing or empty `{field}`")
-    if re.search(r"author:\s*(me|you|<you>|us)\b", text, re.I):
-        problems.append("metadata: `author` must credit the original authors, not us")
+    if re.search(r"author:\s*(me|you|<you>|us|Sliverkiss)\b", text, re.I):
+        problems.append("metadata: `author` must credit the original authors only — "
+                        "never add our own name to a derived module")
 
     for hit in FORBIDDEN.findall(text):
         problems.append(f"native: converter reference found (`{hit}`)")

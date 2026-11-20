@@ -68,7 +68,10 @@ when every cluster in the report has a verdict — kept, replaced, or dropped
 JSON edits become `response_jq` filters, conditionless string surgery
 becomes `response_regex`, only real logic (branching, state, storage) is
 ported to `export default async (ctx)`. Metadata: `author` credits the
-originals; icon resolves by the tables' three-step rule.
+originals **only — never add our own name to a derived module's author
+field**; porting or merging someone else's work is not co-authorship
+under open-source norms. We integrate, the originals originate. Icon
+resolves by the tables' three-step rule.
 
 ```bash
 python3 scripts/icon.py --sources /tmp/picc     # source icon, else App Store
@@ -96,7 +99,7 @@ Module skeleton — the ladder's output shapes, most common first:
 ```yaml
 name: <app> 去广告
 description: <一句话:干什么 + 若需清缓存/重装才生效,压进同一句>
-author: <original author(s) — we integrate, not originate>
+author: <original author(s) only — never our own name on derived work>
 homepage: <this repo>
 icon: <source module's icon if one exists; else App Store 104×104>
 # merged from: <repo@date → what it contributed, …>
