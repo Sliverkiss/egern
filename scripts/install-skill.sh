@@ -14,9 +14,9 @@ if [ -e "$TARGET" ] && [ ! -L "$TARGET" ]; then
   exit 1
 fi
 
+# The skill directory carries a relative `docs` symlink to the snapshot,
+# so one link is enough and relative resolution keeps working.
 ln -sfn "$REPO/.agents/skills/egern-docs" "$TARGET"
-ln -sfn "$REPO/docs" "$TARGET/docs"
 
-echo "installed: $TARGET"
-echo "  -> $REPO/.agents/skills/egern-docs"
-echo "  -> $REPO/docs"
+echo "installed: $TARGET -> $REPO/.agents/skills/egern-docs"
+echo "docs:      $TARGET/docs -> $REPO/docs"
