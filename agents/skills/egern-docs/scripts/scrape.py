@@ -23,9 +23,10 @@ from datetime import date
 from html.parser import HTMLParser
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
-DOCS_DIR = ROOT / ".agents" / "skills" / "skills" / "egern-docs" / "docs"
-DOCS_LINK = str(DOCS_DIR.relative_to(ROOT))
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+SKILL_DIR = Path(__file__).resolve().parent.parent
+DOCS_DIR = SKILL_DIR / "docs"
+DOCS_LINK = str(DOCS_DIR.relative_to(REPO_ROOT))
 BASE_URL = "https://egernapp.com"
 USER_AGENT = "egern-docs-snapshot/1.0 (+https://github.com/Sliverkiss/egern)"
 LANGUAGES = ("en", "zh-CN")
@@ -479,7 +480,7 @@ def write_page(path: Path, content: str, check: bool, changed: list[str]) -> Non
             if not check:
                 path.write_text(previous, encoding="utf-8")
             return
-    changed.append(str(path.relative_to(ROOT)))
+    changed.append(str(path.relative_to(REPO_ROOT)))
     if not check:
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(content, encoding="utf-8")
@@ -620,7 +621,7 @@ def main() -> int:
                 english_bodies[slug] = content
 
     llms_txt = generate_llms_txt()
-    llms_path = ROOT / "llms.txt"
+    llms_path = SKILL_DIR / "llms.txt"
     if not llms_path.exists() or llms_path.read_text(encoding="utf-8") != llms_txt:
         changed.append("llms.txt")
         if not args.check:
@@ -628,7 +629,7 @@ def main() -> int:
 
     if len(english_bodies) == len(PAGES):
         llms_full = generate_llms_full_txt(english_bodies)
-        full_path = ROOT / "llms-full.txt"
+        full_path = SKILL_DIR / "llms-full.txt"
         if not full_path.exists() or full_path.read_text(encoding="utf-8") != llms_full:
             changed.append("llms-full.txt")
             if not args.check:

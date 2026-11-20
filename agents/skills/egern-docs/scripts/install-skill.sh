@@ -1,15 +1,18 @@
 #!/usr/bin/env bash
 # Install the self-contained egern-docs skill into an agent skills directory.
 #
-#   ./scripts/install-skill.sh                      # -> ~/.claude/skills
-#   ./scripts/install-skill.sh ~/.agents/skills     # any other skills dir
+#   install-skill.sh                          # -> ~/.claude/skills
+#   install-skill.sh ~/.agents/skills         # any other skills dir
 #
 # The skill directory carries its own docs snapshot, so one symlink is enough.
 # Symlinked (not copied) so it always reads the current snapshot.
 set -euo pipefail
 
-REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-SOURCE="$REPO/.agents/skills/skills/egern-docs"
+SOURCE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+if [ ! -f "$SOURCE/SKILL.md" ]; then
+  echo "error: SKILL.md not found next to this script's parent" >&2
+  exit 1
+fi
 SKILLS_DIR="${1:-$HOME/.claude/skills}"
 TARGET="$SKILLS_DIR/egern-docs"
 

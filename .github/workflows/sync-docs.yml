@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - "scripts/**"
+      - "agents/skills/egern-docs/scripts/**"
       - ".github/workflows/sync-docs.yml"
 
 permissions:
@@ -23,10 +23,11 @@ jobs:
           python-version: "3.12"
 
       - name: Run converter tests
-        run: python3 -m unittest discover tests -v
+        working-directory: agents/skills/egern-docs
+        run: python3 -m unittest discover scripts/tests -v
 
       - name: Scrape official documentation
-        run: python3 scripts/scrape.py
+        run: python3 agents/skills/egern-docs/scripts/scrape.py
 
       - name: Commit changes
         run: |
