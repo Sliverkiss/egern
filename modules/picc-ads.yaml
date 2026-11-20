@@ -1,0 +1,44 @@
+name: 中国人保去广告
+description: 移除中国人保 App 启动开屏、人保头条、猜你喜欢、主页及我的页面推广位。首次启用需清除 App 缓存或重装 App 才能生效。
+author: Sliverkiss
+homepage: https://github.com/Sliverkiss/egern
+icon: shield.fill
+# merged from:
+#   fmz200/wool_scripts@2026-11-11 (Surge PICC.sgmodule)
+#   leiyiyan/resource@2024-02-19 (Loon picc_adblock.plugin)
+#   zirawell/R-Store (QX picc.conf)
+#   Moli-X/Tool@2026-10-02 (Loon Kelee PICC_Insurance_remove_ads.plugin)
+#   GrandpaNiuu/GrandpaNiu (picc-insurance.sgmodule)
+# conflicts resolved:
+#   zirawell adds windowsintegration/getMessage 弹窗广告 reject — included (newest, fail-closed)
+#   zirawell adds headLineInit response-body rewrite — dropped (homeInit script covers the page)
+
+url_rewrites:
+  # 人保头条
+  - match: ^https?:\/\/zgrb\.epicc\.com\.cn\/G-HAPP\/h\/headlines\/queryHeadlines
+    location: http://reject/
+  # 启动开屏
+  - match: ^https?:\/\/zgrb\.epicc\.com\.cn\/G-HAPP\/a\/update\/startupPage\/v\d
+    location: http://reject-dict/
+  # 猜你喜欢
+  - match: ^https?:\/\/zgrb\.epicc\.com\.cn\/G-HAPP\/a\/config\/guessYouLike\/v\d
+    location: http://reject-dict/
+  # 弹窗广告
+  - match: ^https?:\/\/zgrb\.epicc\.com\.cn\/G-HAPP\/a\/config\/windowsintegration\/getMessage
+    location: http://reject-dict/
+
+scriptings:
+  - http_response:
+      name: 中国人保 主页去广告
+      match: ^https?:\/\/zgrb\.epicc\.com\.cn\/G-HAPP\/a\/config\/homeInit\/v\d
+      script_url: https://raw.githubusercontent.com/Sliverkiss/egern/main/scripts/picc-ads.js
+      body_required: true
+  - http_response:
+      name: 中国人保 我的页面去广告
+      match: ^https?:\/\/zgrb\.epicc\.com\.cn\/G-HAPP\/mpageconfig\/myPageConfigList\/v\d
+      script_url: https://raw.githubusercontent.com/Sliverkiss/egern/main/scripts/picc-ads.js
+      body_required: true
+
+mitm:
+  hostnames:
+    - zgrb.epicc.com.cn
