@@ -84,17 +84,47 @@ def hosts_in(patterns: list[str]) -> tuple[set[str], int]:
         # expand top-level alternations: api.(revenuecat|rc-backup).com
         # → api.revenuecat.com, api.rc-backup.com — one branch per expansion
         for variant in expand_alternations(plain):
-            for host in HOST_IN_PATTERN.findall(variant):
-                found.add(host.lower())
+            for hit in HOST_IN_PATTERN.finditer(variant):
+                if _captured_mid_label(variant, hit.end()):
+                    continue  # `api.uaa.*.com` stops at a dot, not a label
+                found.add(hit.group(1).lower())
     return found, dynamic
 
 
+def _captured_mid_label(pattern: str, end: int) -> bool:
+    """True when the host capture stopped where the name keeps going.
+
+    `https?://api.uaa.*.com` captures `api.uaa` and leaves `.*.com` behind —
+    that prefix is not a hostname, and requiring `api.uaa` in mitm.hostnames
+    would fail on a module that is perfectly correct.
+    """
+    rest = pattern[end:end + 3]
+    if not rest:
+        return False
+    if rest[0].isalnum() or rest[0] in "-_":
+        return True
+    # `.` followed by a wildcard-ish token means the label is unfinished
+    return rest.startswith(".*") or rest.startswith(".+")
+
+
+GLOB_SPECIAL = re.compile(r"[.+]")
+
+
 def wildcard_matches(declared: str, host: str) -> bool:
-    """A declared mitm entry covers a host: literal equality, or `*.base` suffix."""
-    if declared.startswith("*."):
+    """A declared mitm entry covers a host.
+
+    Literal equality; `*.base` also covers base itself (the form every module
+    uses); any other `*` is a glob across the whole name, which is how the
+    upstream `[mitm]` blocks write hosts like `*.uaa*.com` and `*xmind.*`
+    — a `*` there spans dots, so `*xmind.*` does cover `www.xmind.cn`.
+    """
+    if "*" not in declared:
+        return declared == host
+    if declared.startswith("*.") and "*" not in declared[2:]:
         base = declared[2:]
         return host == base or host.endswith("." + base)
-    return declared == host
+    pattern = GLOB_SPECIAL.sub(lambda m: "\\" + m.group(0), declared).replace("*", ".*")
+    return re.fullmatch(pattern, host) is not None
 
 
 def expand_alternations(pattern: str) -> list[str]:
