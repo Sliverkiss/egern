@@ -1,17 +1,20 @@
 name: 中国人保去广告
-description: 移除中国人保 App 启动开屏、人保头条、猜你喜欢、主页及我的页面推广位。首次启用需清除 App 缓存或重装 App 才能生效。
+description: 移除中国人保 App 启动开屏、人保头条、猜你喜欢、弹窗、主页及我的页面推广位。首次启用需清除 App 缓存或重装 App 才能生效。
 author: Sliverkiss
 homepage: https://github.com/Sliverkiss/egern
-icon: shield.fill
+icon: https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/25/ed/3b/25ed3be4-6150-eeaa-d426-7123487b4786/AppIcon-0-1x_U007ephone-0-6-0-sRGB-85-220-0.png/104x104bb.jpg
 # merged from:
 #   fmz200/wool_scripts@2026-11-11 (Surge PICC.sgmodule)
 #   leiyiyan/resource@2024-02-19 (Loon picc_adblock.plugin)
 #   zirawell/R-Store (QX picc.conf)
 #   Moli-X/Tool@2026-10-02 (Loon Kelee PICC_Insurance_remove_ads.plugin)
 #   GrandpaNiuu/GrandpaNiu (picc-insurance.sgmodule)
+# absorption:
+#   主页/我的页面脚本（Sliverkiss 2024 QX/Surge 双 API 脚本）改写为原生 jq
+#   ——固定结构改写（清空字段、正则过滤数组），声明式优先，不保留脚本
 # conflicts resolved:
 #   zirawell adds windowsintegration/getMessage 弹窗广告 reject — included (newest, fail-closed)
-#   zirawell adds headLineInit response-body rewrite — dropped (homeInit script covers the page)
+#   zirawell adds headLineInit response-body rewrite — dropped (homeInit jq covers the page)
 
 url_rewrites:
   # 人保头条
@@ -27,17 +30,18 @@ url_rewrites:
   - match: ^https?:\/\/zgrb\.epicc\.com\.cn\/G-HAPP\/a\/config\/windowsintegration\/getMessage
     location: http://reject-dict/
 
-scriptings:
-  - http_response:
-      name: 中国人保 主页去广告
+body_rewrites:
+  # 主页:清空启动开屏配置,过滤推广模板(原 QX/Surge 脚本逻辑,jq 复刻)
+  - response_jq:
       match: ^https?:\/\/zgrb\.epicc\.com\.cn\/G-HAPP\/a\/config\/homeInit\/v\d
-      script_url: https://raw.githubusercontent.com/Sliverkiss/egern/main/scripts/picc-ads.js
-      body_required: true
-  - http_response:
-      name: 中国人保 我的页面去广告
+      filter: >-
+        .data.startupPage = {}
+        | .data.templates = (.data.templates | map(select((.name // "") | test("主轮播图|保险推荐|专享|腰封轮播图|浮标配置|二楼营销位|首页主题") | not)))
+  # 我的页面:清空推广列表
+  - response_jq:
       match: ^https?:\/\/zgrb\.epicc\.com\.cn\/G-HAPP\/mpageconfig\/myPageConfigList\/v\d
-      script_url: https://raw.githubusercontent.com/Sliverkiss/egern/main/scripts/picc-ads.js
-      body_required: true
+      filter: >-
+        .data.YFList = []
 
 mitm:
   hostnames:

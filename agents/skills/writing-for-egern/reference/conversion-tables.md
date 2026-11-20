@@ -13,6 +13,14 @@ itself. When the mapping and the docs disagree, the docs win — fix this file.
 | Loon plugin | `#!name = ` `#!desc = ` `#!icon = ` `#!author = ` | same fields |
 | QX conf | `#!name=` or bare comments | same fields; a bare `# > App - Tag` first comment is the name |
 
+`icon` rule: use the app's own App Store icon at 104×104. Look the app up
+(`itunes.apple.com/lookup?id=<appId>&country=cn`, the appId is usually in
+the source module's `App链接=`/`#!system` header or searchable by name),
+take `artworkUrl512`, and rewrite the trailing size segment to
+`104x104bb.jpg` — mzstatic serves any size on the same path. Fallback
+when no appId is found: an SF Symbol name (`shield.fill`), never another
+project's icon CDN.
+
 ## URL rewrites
 
 | Source | Syntax | Egern |
@@ -59,9 +67,39 @@ Egern scripts run `export default async function(ctx)` with a Fetch-style
 QX (`$task`, `$prefs`, `$notify`, `$done`) or Surge/Loon (`$httpClient`,
 `$persistentStore`, `$notification`, `$done`).
 
-Every script gets ported natively — no Script-Hub references, no external
-conversion hosting. The module must be self-contained Egern YAML + Egern
-scripts.
+Before porting any script, decide its fate. A community script is one of
+three things, and the first two never survive as scripts:
+
+**1. Fixed structure edits → jq, always.** A script that only sets JSON
+fields to constants or filters arrays by a name regex is a declarative
+rewrite wearing a script costume. Egern runs it as
+`body_rewrites: - response_jq:` with a `filter` — no `script_url`, no
+`body_required`, no runtime, nothing to download. Translate the script
+body to jq:
+
+| Script pattern | jq filter |
+| --- | --- |
+| `Body.data.x = {}` / `= []` | `.data.x = {}` / `.data.x = []` |
+| `Body.data.x = null` | `.data.x = null` |
+| `arr.filter(e => !e.name.match(/R1\|R2/))` | `.x = (.x \| map(select((.name // "") \| test("R1\|R2") \| not)))` |
+| `arr.filter(e => e.name.match(/R/))` | `.x = (.x \| map(select(.name \| test("R"))))` |
+| `delete Body.data.x` / `delete Body.x` | `del(.data.x)` |
+| `Body.data.x = someConstant` | `.data.x = someConstant` |
+
+Robustness upgrade carried by the port: the `// ""` guard passes entries
+whose `name` is missing — the source script would crash on them. Verify
+the translated filter against a sample payload with `jq -f filter.jq`
+before writing it into the module.
+
+**2. Conditionless string surgery → response_regex.** `body.replace(…)`
+with no JSON parsing is a `body_rewrites: - response_regex:` `find`/`
+replace` pair.
+
+**3. Real logic → port natively.** Only scripts with branching, state,
+storage, or cross-request work stay scripts: port to
+`export default async (ctx)` per the port map below. No Script-Hub
+references, no external conversion hosting — the module stays
+self-contained.
 
 Port map:
 

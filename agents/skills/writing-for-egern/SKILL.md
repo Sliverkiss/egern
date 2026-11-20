@@ -53,10 +53,14 @@ pattern.
 ### 4. Convert
 
 Map every tuple to Egern fields using
-[reference/conversion-tables.md](reference/conversion-tables.md). Scripts
-are always ported natively to `export default async (ctx)` — the port map
-is in the conversion tables. No Script-Hub or external converter URLs in
-the output: the module is self-contained native Egern.
+[reference/conversion-tables.md](reference/conversion-tables.md). Absorb,
+not translate: run the decision ladder on every script before it can
+become a script — fixed structure edits become `response_jq` filters,
+conditionless string surgery becomes `response_regex`, only real logic
+(branching, state, storage) gets ported to `export default async (ctx)`.
+Icon: the app's App Store icon at 104×104 (lookup rule in the tables).
+No Script-Hub or external converter URLs in the output: the module is
+self-contained native Egern.
 
 Native module skeleton:
 
