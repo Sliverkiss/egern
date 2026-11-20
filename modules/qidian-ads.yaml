@@ -1,0 +1,112 @@
+name: 起点读书去广告
+description: 移除起点读书开屏、书架悬浮、每日导读、活动弹窗及我的页面推广位，需清缓存或重装生效。
+author: app2smile, zirawell, Sliverkiss
+homepage: https://github.com/Sliverkiss/egern
+icon: https://raw.githubusercontent.com/zirawell/R-Store/main/Res/Icon/App/qidian.png
+# merged from:
+#   app2smile/rules (module/qidian.conf + js/qidian.js, 26 源引用) — 开屏/deeplink/iOS_tab/每日导读/
+#     书架悬浮/getconf 六分支脚本 → 本模块 jq 复刻
+#   zirawell/R-Store (Res/Scripts/AntiAd/qidian.js, 10 源引用) — getaccountpage(我的页)/
+#     assembly/toolbar(活动按钮) 两个补充分支 → 并入 jq
+#   fmz200/wool_scripts 系 12 源共识 (Kelee 镜像族) — v1 系列端点 map-local 钉 200+{}
+#   GrandpaNiuu 等 reject-dict 派 — 同端点裸 reject-dict
+# absorption:
+#   app2smile 147 行 + zirawell 121 行两个 JS 合计 8 个分支，全部是固定结构改写
+#   （清空数组/置 null/置 0），按阶梯第一级全部降为 response_jq，零脚本残留
+#   $notification 调试通知、console.log、请求方法判断：dropped（通知是脚本调试残留，打扰用户；
+#     jq 只看 body 字段形态，不依赖 method）
+#   getconf 分支的 EnableSearchUser 置 "1"（搜索用户增强）：kept——原作者明确设计，
+#     属"吸收优化"而非去广告，注释保留出处
+# conflicts resolved:
+#   v4/getsplashscreen: jq 改写 beat map-local(12源) beat reject-dict——map-local 会把开屏
+#     配置整个钉成 {}，jq 保留 Data 其余字段只清 List/EnableGDT，副作用最小
+#   v1/adv/、v1/push/getdialog、v1/maintain/playstrip 等 12 源 map-local {}：kept——这些端点
+#     整个响应就是广告配置，钉 {} 即最优；reject-dict 派被 beat（状态码与头更具体）
+#   v1/bookshelf/getad (12 源): reject——纯广告接口，无可用数据，reject 优于 map-local
+#   h5 视频广告 mainpage (6 源 script): dropped——h5.if.qidian.com webview 场景少，
+#     主模块聚焦 magev6 客户端 API；如需可后续补 map-local
+
+url_rewrites:
+  # 纯广告/运营接口——12 源共识，整响应钉 200+{}（比 reject-dict 多钉状态码与 JSON 头）
+  - match: '^https?:\/\/magev6\.if\.qidian\.com\/argus\/api\/v1\/adv\/'
+    location: http://reject/
+  - match: '^https?:\/\/magev6\.if\.qidian\.com\/argus\/api\/v1\/bookshelf\/getad'
+    location: http://reject/
+  - match: '^https?:\/\/magev6\.if\.qidian\.com\/argus\/api\/v1\/push\/getdialog\?'
+    location: http://reject-dict/
+  - match: '^https?:\/\/magev6\.if\.qidian\.com\/argus\/api\/v1\/maintain\/playstrip'
+    location: http://reject-dict/
+  # 热搜词/新人引导/青少年弹窗/推送消息等运营位（12 源 map-local 共识）
+  - match: '^https?:\/\/magev6\.if\.qidian\.com\/argus\/api\/v1\/booksearch\/hotwords\?'
+    location: http://reject-dict/
+  - match: '^https?:\/\/magev6\.if\.qidian\.com\/argus\/api\/v1\/bookshelf\/gettopoperation'
+    location: http://reject-dict/
+  - match: '^https?:\/\/magev6\.if\.qidian\.com\/argus\/api\/v1\/checkin\/simpleinfo\?'
+    location: http://reject-dict/
+  - match: '^https?:\/\/magev6\.if\.qidian\.com\/argus\/api\/v1\/dailyrecommend\/recommendbook\?'
+    location: http://reject-dict/
+  - match: '^https?:\/\/magev6\.if\.qidian\.com\/argus\/api\/v1\/followsubscribe\/showchapterendmodule\?'
+    location: http://reject-dict/
+  - match: '^https?:\/\/magev6\.if\.qidian\.com\/argus\/api\/v1\/freshman\/bookshelfbtn'
+    location: http://reject-dict/
+  - match: '^https?:\/\/magev6\.if\.qidian\.com\/argus\/api\/v1\/message\/getpushedmessagelist'
+    location: http://reject-dict/
+  - match: '^https?:\/\/magev6\.if\.qidian\.com\/argus\/api\/v1\/young\/getconf'
+    location: http://reject-dict/
+  # 章节末推广模块（Moli-X/axtyet 3 源 reject-dict）
+  - match: '^https?:\/\/magev6\.if\.qidian\.com\/argus\/api\/v1\/followsubscribe'
+    location: http://reject-dict/
+
+body_rewrites:
+  # 开屏配置：只清广告位，保留 Data 其余字段（app2smile 脚本 jq 复刻）
+  - response_jq:
+      match: '^https?:\/\/magev6\.if\.qidian\.com\/argus\/api\/v4\/client\/getsplashscreen'
+      filter: >-
+        .Data.List = null
+        | .Data.EnableGDT = (if .Data.EnableGDT == 1 then 0 else .Data.EnableGDT end)
+  # 冷启动跳转精选页：清 ActionUrl（app2smile）
+  - response_jq:
+      match: '^https?:\/\/magev6\.if\.qidian\.com\/argus\/api\/v2\/deeplink\/geturl'
+      filter: >-
+        .Data.ActionUrl = ""
+  # 精选页 iOS_tab 广告位（app2smile）
+  - response_jq:
+      match: '^https?:\/\/magev6\.if\.qidian\.com\/argus\/api\/v1\/adv\/getadvlistbatch\?positions=iOS_tab'
+      filter: >-
+        .Data.iOS_tab = []
+  # 每日导读（app2smile）
+  - response_jq:
+      match: '^https?:\/\/magev6\.if\.qidian\.com\/argus\/api\/v2\/dailyrecommend\/getdailyrecommend'
+      filter: >-
+        .Data.Items = (if ((.Data.Items // []) | length) > 0 then [] else .Data.Items end)
+  # 书架悬浮广告（app2smile + zirawell 一致）
+  - response_jq:
+      match: '^https?:\/\/magev6\.if\.qidian\.com\/argus\/api\/v1\/bookshelf\/getHoverAdv'
+      filter: >-
+        .Data.ItemList = (if ((.Data.ItemList // []) | length) > 0 then [] else .Data.ItemList end)
+  # 全局配置：活动弹窗/防重试狼眼/青少年弹框/书架活动icon 全清，
+  # EnableSearchUser 置 1 保留原作者的"搜索用户"增强（app2smile）
+  - response_jq:
+      match: '^https?:\/\/magev6\.if\.qidian\.com\/argus\/api\/v1\/client\/getconf'
+      filter: >-
+        .Data.ActivityPopup = null
+        | .Data.WolfEye = (if .Data.WolfEye == 1 then 0 else .Data.WolfEye end)
+        | .Data.CloudSetting.TeenShowFreq = (if .Data.CloudSetting.TeenShowFreq == "1" then "0" else .Data.CloudSetting.TeenShowFreq end)
+        | .Data.ActivityIcon = (if .Data.ActivityIcon.Type == 0 and .Data.ActivityIcon.EndTime != 0 then {"Type":0,"StartTime":0,"EndTime":0} else .Data.ActivityIcon end)
+        | .Data.EnableSearchUser = "1"
+  # 我的页面：会员卡片/福利中心/功能按钮推广（zirawell）
+  - response_jq:
+      match: '^https?:\/\/magev6\.if\.qidian\.com\/argus\/api\/v3\/user\/getaccountpage'
+      filter: >-
+        .Data.Member = null
+        | .Data.BenefitButtonList = (if ((.Data.BenefitButtonList // []) | length) > 0 then [] else .Data.BenefitButtonList end)
+        | .Data.FunctionButtonList = (if ((.Data.FunctionButtonList // []) | length) > 0 then [] else .Data.FunctionButtonList end)
+  # 工具栏活动按钮（zirawell）
+  - response_jq:
+      match: '^https?:\/\/magev6\.if\.qidian\.com\/argus\/api\/v1\/assembly\/toolbar'
+      filter: >-
+        .Data.Toolbar.Adv = (if .Data.Toolbar.Adv then {} else .Data.Toolbar.Adv end)
+
+mitm:
+  hostnames:
+    - magev6.if.qidian.com

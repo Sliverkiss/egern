@@ -10,10 +10,10 @@
 #   B. domain — hostnames harvested from phase A, re-searched; this reaches
 #               modules filed under a different app name
 #
-# Searches run one at a time: GitHub code search allows ~10 requests/minute.
-# Fetches run in parallel: raw.githubusercontent.com is a CDN, not the API, so
-# there is no per-file pacing to respect. That split is the whole speed story —
-# a serial fetch loop spends minutes waiting on sockets for nothing.
+# Searches run one at a time, back to back — an authenticated gh account has
+# a 30 requests/min code-search quota, far above what a sweep needs. If a run
+# does hit the limit, pass --pace 7; it is opt-in, never the default.
+# Fetches run in parallel: raw.githubusercontent.com is a CDN, not the API.
 #
 # Output: <out>/<slug>.<ext> and <out>/manifest.tsv, appended per file as it
 # lands, so an interrupted run still leaves a usable manifest and re-running
@@ -30,7 +30,7 @@ OUT=${OUT:-sources}
 MAX_CALLS=30
 LIMIT=100
 WORKERS=12
-PACE=7
+PACE=0
 NAMES=()
 DOMAIN_PHASE=1
 FORMATS=(sgmodule plugin conf lpx snippet stoverride)

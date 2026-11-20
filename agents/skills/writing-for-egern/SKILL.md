@@ -34,10 +34,11 @@ bash scripts/gather.sh '中国人保' PICC epicc --out /tmp/picc
 Phase A searches the names across every client format; phase B harvests
 the API domains from phase A's hits and re-searches them, which reaches
 modules filed under a different app name. Raise `--max-calls` when the app
-is common; the summary lists what each format yielded. Searches are the only
-slow part (code search allows ~10/minute, so budget ~6s per call); fetches
-run in parallel and an interrupted run resumes where it stopped. Supplement
-with the repo map and query shapes in
+is common; the summary lists what each format yielded. An authenticated gh
+account allows ~30 searches/minute, so queries run back to back — pass
+`--pace 7` only if a run actually hits the limit. Fetches run in parallel
+and an interrupted run resumes where it stopped. Supplement with the repo
+map and query shapes in
 [reference/source-repos.md](reference/source-repos.md).
 
 Done when the run reports hits for all four clients (Surge, Loon, QX,
