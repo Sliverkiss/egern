@@ -95,7 +95,7 @@ Module skeleton — the ladder's output shapes, most common first:
 
 ```yaml
 name: <app> 去广告
-description: <what it blocks; note if app cache must be cleared>
+description: <一句话:干什么 + 若需清缓存/重装才生效,压进同一句>
 author: <original author(s) — we integrate, not originate>
 homepage: <this repo>
 icon: <source module's icon if one exists; else App Store 104×104>
