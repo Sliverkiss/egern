@@ -1,72 +1,73 @@
 ---
 name: egern-docs
 description: >
-  Egern (iOS/iPadOS/macOS proxy client) official documentation reference. Use when
-  writing, modifying, explaining, reviewing or debugging Egern configuration —
-  Profile YAML, proxies, policy groups, rules and rule sets, DNS, modules, URL /
-  header / body rewrites, HTTP captures, widgets, or JavaScript scripting.
-  Triggers on "Egern", "Profile.yaml", "policy_groups", "rule_set", "egern://".
+  Egern proxy client official documentation. Fire on any Egern configuration
+  work — Profile YAML (proxies, policy groups, rules, DNS, modules, rewrites,
+  HTTP captures, widgets) or Egern JavaScript scripting. Matches: Egern,
+  Profile.yaml, policy_groups, rule_set, egern://.
 ---
 
 # Egern Documentation Skill
 
-## Goal
+## The rule
 
-Answer from the documentation bundled in this skill. Egern is not Surge, Loon,
-Quantumult X or mihomo — the syntax overlaps and does not match. Never substitute
-another client's configuration for Egern's.
+Support = documented in this snapshot. A YAML key that parses is still
+unsupported until a page here documents it; when you hit that case, say
+"not documented" and write only what the pages cover. Egern's fields look
+like Surge, Loon or mihomo and differ from all three — take every field
+from these pages, checked against the page for the section you are writing.
 
-## How to look things up
+## Lookup
 
-1. Pick the topic from the navigation below. All paths are relative to this
-   `SKILL.md`; `docs/` holds the documentation snapshot itself, so the skill
-   directory is self-contained and can be copied or linked anywhere.
-2. Read only the pages the question needs. For cross-module work (for example a
-   module that carries a script and a widget), read the dependent pages too.
-3. For long pages, search for the field name, protocol name or section heading
-   first, then read that section plus the shared fields it refers to.
-4. When checking a profile, verify every cross-reference by name: proxies,
-   policy groups, DNS upstream groups, rule sets, modules.
-5. If the documentation does not cover a behaviour, say so. Do not guess, and do
-   not infer support from the fact that a YAML key parses.
+1. Pick a page per section the task touches, from the navigation below.
+   Each slug exists under `docs/en/` and `docs/zh-CN/` with the same name —
+   read the language the answer will be written in.
+2. Long page: search the field, protocol or section heading, then read that
+   section plus the shared fields it references. You are done when every
+   field you emit appears on the page for that section.
+3. Cross-module work — a module carrying a script or a widget — read each
+   part's page plus `env` and `modules`.
 
-## Navigation
+## Profiles
 
-| Topic | Chinese | English |
-| --- | --- | --- |
-| Product overview | [intro](docs/zh-CN/intro.md) | [intro](docs/en/intro.md) |
-| FAQ | [faq](docs/zh-CN/faq.md) | [faq](docs/en/faq.md) |
-| URL Scheme | [url-scheme](docs/zh-CN/url-scheme.md) | [url-scheme](docs/en/url-scheme.md) |
-| Complete example | [example](docs/zh-CN/configuration-example.md) | [example](docs/en/configuration-example.md) |
-| Proxies and protocols | [proxies](docs/zh-CN/configuration-proxies.md) | [proxies](docs/en/configuration-proxies.md) |
-| Policy groups | [policy_groups](docs/zh-CN/configuration-policy_groups.md) | [policy_groups](docs/en/configuration-policy_groups.md) |
-| Rules and rule sets | [rules](docs/zh-CN/configuration-rules.md) | [rules](docs/en/configuration-rules.md) |
-| DNS | [dns](docs/zh-CN/configuration-dns.md) | [dns](docs/en/configuration-dns.md) |
-| Script configuration | [scriptings](docs/zh-CN/configuration-scriptings.md) | [scriptings](docs/en/configuration-scriptings.md) |
-| JavaScript API | [javascript-api](docs/zh-CN/javascript-api.md) | [javascript-api](docs/en/javascript-api.md) |
-| Environment variables | [env](docs/zh-CN/configuration-env.md) | [env](docs/en/configuration-env.md) |
-| Widgets / Widget DSL | [widgets](docs/zh-CN/configuration-widgets.md) | [widgets](docs/en/configuration-widgets.md) |
-| URL rewrites | [url_rewrites](docs/zh-CN/configuration-url_rewrites.md) | [url_rewrites](docs/en/configuration-url_rewrites.md) |
-| Header rewrites | [header_rewrites](docs/zh-CN/configuration-header_rewrites.md) | [header_rewrites](docs/en/configuration-header_rewrites.md) |
-| Body rewrites | [body_rewrites](docs/zh-CN/configuration-body_rewrites.md) | [body_rewrites](docs/en/configuration-body_rewrites.md) |
-| HTTP captures | [http_captures](docs/zh-CN/configuration-http_captures.md) | [http_captures](docs/en/configuration-http_captures.md) |
-| Modules and arguments | [modules](docs/zh-CN/configuration-modules.md) | [modules](docs/en/configuration-modules.md) |
-| Proxy tutorial | [proxy](docs/zh-CN/example-proxy.md) | [proxy](docs/en/example-proxy.md) |
-| Sniffer tutorial | [http-traffic-sniffer](docs/zh-CN/example-http-traffic-sniffer.md) | [http-traffic-sniffer](docs/en/example-http-traffic-sniffer.md) |
+From scratch: read the complete `example` first, then the pages for the
+sections it uses. Editing an existing profile: keep unrelated settings and
+the user's own values untouched.
 
-Writing a profile from scratch: read the complete example first, then the pages
-for the modules it uses. Writing a script: read `scriptings` and `javascript-api`
-together. A module that ships a script or widget: add `env` and `modules`.
+Then check the wiring: every referenced name — proxy, policy group, DNS
+upstream group, rule set, module — resolves to a definition in the profile.
 
 ## Answering
 
-- Use the field names from the documentation. Configuration examples are Egern
-  YAML; script examples use the documented JavaScript API.
-- Say whether an example is a complete profile or a fragment. When editing an
-  existing profile, keep unrelated settings and the user's own values intact.
-- Separate three things: behaviour the documentation states, inference from the
-  documentation, and behaviour that is not covered. If two pages conflict, point
-  at the conflict instead of merging them into one confident answer.
-- Cite the page you used. Version-sensitive behaviour: the snapshot date is in
-  each file's frontmatter; the live page is `https://egernapp.com/docs/<page>`.
-- Never claim a configuration was tested on a device unless it was.
+- Label every claim as documented, inferred, or uncovered. Two pages in
+  conflict: report the conflict, never merge it away.
+- Say whether an example is a complete profile or a fragment.
+- Cite the page used. Each page's frontmatter `fetched` date marks the
+  snapshot; the live version is `https://egernapp.com/docs/<slug>`.
+- Claim device testing only if it actually happened.
+
+## Navigation
+
+| Topic | Page |
+| --- | --- |
+| Product overview | [intro](docs/en/intro.md) |
+| FAQ | [faq](docs/en/faq.md) |
+| URL Scheme | [url-scheme](docs/en/url-scheme.md) |
+| Complete example | [example](docs/en/configuration-example.md) |
+| Proxies and protocols | [proxies](docs/en/configuration-proxies.md) |
+| Policy groups | [policy_groups](docs/en/configuration-policy_groups.md) |
+| Rules and rule sets | [rules](docs/en/configuration-rules.md) |
+| DNS | [dns](docs/en/configuration-dns.md) |
+| Script configuration | [scriptings](docs/en/configuration-scriptings.md) |
+| JavaScript API | [javascript-api](docs/en/javascript-api.md) |
+| Environment variables | [env](docs/en/configuration-env.md) |
+| Widgets / Widget DSL | [widgets](docs/en/configuration-widgets.md) |
+| URL rewrites | [url_rewrites](docs/en/configuration-url_rewrites.md) |
+| Header rewrites | [header_rewrites](docs/en/configuration-header_rewrites.md) |
+| Body rewrites | [body_rewrites](docs/en/configuration-body_rewrites.md) |
+| HTTP captures | [http_captures](docs/en/configuration-http_captures.md) |
+| Modules and arguments | [modules](docs/en/configuration-modules.md) |
+| Proxy tutorial | [proxy](docs/en/example-proxy.md) |
+| Sniffer tutorial | [http-traffic-sniffer](docs/en/example-http-traffic-sniffer.md) |
+
+Chinese mirror: the same slugs under `docs/zh-CN/`.

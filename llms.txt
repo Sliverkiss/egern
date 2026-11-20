@@ -48,25 +48,27 @@ Every page is a Markdown file under `.agents/skills/skills/egern-docs/docs/en/` 
 
 ## 中文文档
 
-- [产品介绍](.agents/skills/skills/egern-docs/docs/zh-CN/intro.md): Egern 是什么：流量记录、规则类型、策略组、支持的协议与脚本能力。
-- [常见问题](.agents/skills/skills/egern-docs/docs/zh-CN/faq.md): Egern 使用与配置的常见问题。
-- [URL Scheme](.agents/skills/skills/egern-docs/docs/zh-CN/url-scheme.md): 用于自动化与捷径的 egern:// URL Scheme。
-- [完整配置示例](.agents/skills/skills/egern-docs/docs/zh-CN/configuration-example.md): 带全局字段注释的完整 Profile.yaml 示例。
-- [代理节点](.agents/skills/skills/egern-docs/docs/zh-CN/configuration-proxies.md): 代理节点定义与协议：HTTP、SOCKS5、Shadowsocks、Trojan、Hysteria2、VLESS、VMess。
-- [策略组](.agents/skills/skills/egern-docs/docs/zh-CN/configuration-policy_groups.md): 策略组、组类型、节点筛选、flatten 与订阅。
-- [分流规则](.agents/skills/skills/egern-docs/docs/zh-CN/configuration-rules.md): 分流规则语法与规则集，包括远程规则集引用。
-- [DNS](.agents/skills/skills/egern-docs/docs/zh-CN/configuration-dns.md): Bootstrap、上游 DNS、Forward 规则、代理 DNS、block_ips 与 DoH/DoT/DoQ/DoH3。
-- [JavaScript API](.agents/skills/skills/egern-docs/docs/zh-CN/javascript-api.md): 脚本运行时 API：ctx 对象、HTTP 请求、持久化存储、通知与 SSH。
-- [脚本](.agents/skills/skills/egern-docs/docs/zh-CN/configuration-scriptings.md): 脚本配置：http_request、http_response、schedule、generic 与 network 五种脚本类型。
-- [环境变量](.agents/skills/skills/egern-docs/docs/zh-CN/configuration-env.md): 脚本与模块可读取的环境变量。
-- [小组件](.agents/skills/skills/egern-docs/docs/zh-CN/configuration-widgets.md): 用于主屏小组件与脚本面板的 Widget DSL。
-- [URL 重写](.agents/skills/skills/egern-docs/docs/zh-CN/configuration-url_rewrites.md): 针对 MITM 流量的 URL 重写规则。
-- [HTTP 头重写](.agents/skills/skills/egern-docs/docs/zh-CN/configuration-header_rewrites.md): 请求头与响应头重写。
-- [HTTP 正文重写](.agents/skills/skills/egern-docs/docs/zh-CN/configuration-body_rewrites.md): 请求正文与响应正文重写，包括 JQ 表达式。
-- [HTTP 抓包](.agents/skills/skills/egern-docs/docs/zh-CN/configuration-http_captures.md): HTTP 流量的抓取与导出。
-- [模块](.agents/skills/skills/egern-docs/docs/zh-CN/configuration-modules.md): 模块、远程模块引用与参数替换。
-- [代理教程](.agents/skills/skills/egern-docs/docs/zh-CN/example-proxy.md): 从零配置代理的分步教程。
-- [抓包教程](.agents/skills/skills/egern-docs/docs/zh-CN/example-http-traffic-sniffer.md): 配置证书与 HTTPS 中间人抓包的分步教程。
+Chinese mirror of every page above, same slugs under `.agents/skills/skills/egern-docs/docs/zh-CN/`.
+
+- [产品介绍](.agents/skills/skills/egern-docs/docs/zh-CN/intro.md)
+- [常见问题](.agents/skills/skills/egern-docs/docs/zh-CN/faq.md)
+- [URL Scheme](.agents/skills/skills/egern-docs/docs/zh-CN/url-scheme.md)
+- [完整配置示例](.agents/skills/skills/egern-docs/docs/zh-CN/configuration-example.md)
+- [代理节点](.agents/skills/skills/egern-docs/docs/zh-CN/configuration-proxies.md)
+- [策略组](.agents/skills/skills/egern-docs/docs/zh-CN/configuration-policy_groups.md)
+- [分流规则](.agents/skills/skills/egern-docs/docs/zh-CN/configuration-rules.md)
+- [DNS](.agents/skills/skills/egern-docs/docs/zh-CN/configuration-dns.md)
+- [JavaScript API](.agents/skills/skills/egern-docs/docs/zh-CN/javascript-api.md)
+- [脚本](.agents/skills/skills/egern-docs/docs/zh-CN/configuration-scriptings.md)
+- [环境变量](.agents/skills/skills/egern-docs/docs/zh-CN/configuration-env.md)
+- [小组件](.agents/skills/skills/egern-docs/docs/zh-CN/configuration-widgets.md)
+- [URL 重写](.agents/skills/skills/egern-docs/docs/zh-CN/configuration-url_rewrites.md)
+- [HTTP 头重写](.agents/skills/skills/egern-docs/docs/zh-CN/configuration-header_rewrites.md)
+- [HTTP 正文重写](.agents/skills/skills/egern-docs/docs/zh-CN/configuration-body_rewrites.md)
+- [HTTP 抓包](.agents/skills/skills/egern-docs/docs/zh-CN/configuration-http_captures.md)
+- [模块](.agents/skills/skills/egern-docs/docs/zh-CN/configuration-modules.md)
+- [代理教程](.agents/skills/skills/egern-docs/docs/zh-CN/example-proxy.md)
+- [抓包教程](.agents/skills/skills/egern-docs/docs/zh-CN/example-http-traffic-sniffer.md)
 
 ## Optional
 

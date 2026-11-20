@@ -507,8 +507,12 @@ def generate_llms_txt() -> str:
         relative = f"{DOCS_LINK}/{language}/{slug.replace('/', '-')}.md"
         return f"- [{title}]({relative}): {summary}"
 
+    def link_only(slug: str, title: str, language: str) -> str:
+        relative = f"{DOCS_LINK}/{language}/{slug.replace('/', '-')}.md"
+        return f"- [{title}]({relative})"
+
     english = {slug: (title, summary) for slug, title, _zh, summary, _zhs in PAGES}
-    chinese = {slug: (zht, zhs) for slug, _t, zht, _s, zhs in PAGES}
+    chinese = {slug: zht for slug, _t, zht, _s, _zhs in PAGES}
 
     groups = [
         ("Getting started", ["intro", "faq", "url-scheme"]),
@@ -546,9 +550,12 @@ def generate_llms_txt() -> str:
 
     body.append("## 中文文档")
     body.append("")
+    body.append(
+        f"Chinese mirror of every page above, same slugs under `{DOCS_LINK}/zh-CN/`."
+    )
+    body.append("")
     for slug in [s for _, group in groups for s in group]:
-        title, summary = chinese[slug]
-        body.append(entry(slug, title, summary, "zh-CN"))
+        body.append(link_only(slug, chinese[slug], "zh-CN"))
     body.append("")
 
     body.append("## Optional")
