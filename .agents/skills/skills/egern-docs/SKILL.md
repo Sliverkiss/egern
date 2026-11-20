@@ -19,7 +19,8 @@ another client's configuration for Egern's.
 ## How to look things up
 
 1. Pick the topic from the navigation below. All paths are relative to this
-   `SKILL.md`; `docs/` is a link to the snapshot in the parent repository.
+   `SKILL.md`; `docs/` holds the documentation snapshot itself, so the skill
+   directory is self-contained and can be copied or linked anywhere.
 2. Read only the pages the question needs. For cross-module work (for example a
    module that carries a script and a widget), read the dependent pages too.
 3. For long pages, search for the field name, protocol name or section heading

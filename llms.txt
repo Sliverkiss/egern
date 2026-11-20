@@ -9,66 +9,66 @@ Official documentation: https://egernapp.com/docs
 Chinese documentation: https://egernapp.com/zh-CN/docs
 App Store: https://apps.apple.com/app/id1616105820
 
-Every page is a Markdown file under `docs/en/` and `docs/zh-CN/`.
+Every page is a Markdown file under `.agents/skills/skills/egern-docs/docs/en/` and `.agents/skills/skills/egern-docs/docs/zh-CN/`.
 `llms-full.txt` contains all English pages concatenated in this order.
 
 ## Getting started
 
-- [Introduction](docs/en/intro.md): What Egern is: traffic logging, rule types, policy groups, supported protocols, scripting.
-- [FAQ](docs/en/faq.md): Frequently asked questions about Egern behaviour and configuration.
-- [URL Scheme](docs/en/url-scheme.md): egern:// URL schemes for automation and shortcuts.
+- [Introduction](.agents/skills/skills/egern-docs/docs/en/intro.md): What Egern is: traffic logging, rule types, policy groups, supported protocols, scripting.
+- [FAQ](.agents/skills/skills/egern-docs/docs/en/faq.md): Frequently asked questions about Egern behaviour and configuration.
+- [URL Scheme](.agents/skills/skills/egern-docs/docs/en/url-scheme.md): egern:// URL schemes for automation and shortcuts.
 
 ## Configuration
 
-- [Full configuration example](docs/en/configuration-example.md): A complete Profile.yaml with every global field annotated.
-- [Proxies](docs/en/configuration-proxies.md): Proxy definitions and protocols: HTTP, SOCKS5, Shadowsocks, Trojan, Hysteria2, VLESS, VMess.
-- [Policy groups](docs/en/configuration-policy_groups.md): Policy groups, group types, filters, flattening and subscriptions.
-- [Rules](docs/en/configuration-rules.md): Routing rule syntax and rule sets, including remote rule set references.
-- [DNS](docs/en/configuration-dns.md): Bootstrap, upstreams, forward rules, proxy DNS, block IPs, DoH/DoT/DoQ/DoH3.
+- [Full configuration example](.agents/skills/skills/egern-docs/docs/en/configuration-example.md): A complete Profile.yaml with every global field annotated.
+- [Proxies](.agents/skills/skills/egern-docs/docs/en/configuration-proxies.md): Proxy definitions and protocols: HTTP, SOCKS5, Shadowsocks, Trojan, Hysteria2, VLESS, VMess.
+- [Policy groups](.agents/skills/skills/egern-docs/docs/en/configuration-policy_groups.md): Policy groups, group types, filters, flattening and subscriptions.
+- [Rules](.agents/skills/skills/egern-docs/docs/en/configuration-rules.md): Routing rule syntax and rule sets, including remote rule set references.
+- [DNS](.agents/skills/skills/egern-docs/docs/en/configuration-dns.md): Bootstrap, upstreams, forward rules, proxy DNS, block IPs, DoH/DoT/DoQ/DoH3.
 
 ## Scripting
 
-- [JavaScript API](docs/en/javascript-api.md): The script runtime API: ctx objects, HTTP helpers, persistence, notifications, SSH.
-- [Scriptings](docs/en/configuration-scriptings.md): Script configuration: http_request, http_response, schedule, generic and network scripts.
-- [Environment variables](docs/en/configuration-env.md): Environment variables exposed to scripts and modules.
-- [Widgets](docs/en/configuration-widgets.md): Widget DSL for home screen widgets and script-driven panels.
+- [JavaScript API](.agents/skills/skills/egern-docs/docs/en/javascript-api.md): The script runtime API: ctx objects, HTTP helpers, persistence, notifications, SSH.
+- [Scriptings](.agents/skills/skills/egern-docs/docs/en/configuration-scriptings.md): Script configuration: http_request, http_response, schedule, generic and network scripts.
+- [Environment variables](.agents/skills/skills/egern-docs/docs/en/configuration-env.md): Environment variables exposed to scripts and modules.
+- [Widgets](.agents/skills/skills/egern-docs/docs/en/configuration-widgets.md): Widget DSL for home screen widgets and script-driven panels.
 
 ## Traffic rewriting
 
-- [URL rewrites](docs/en/configuration-url_rewrites.md): URL rewrite rules for MITM traffic.
-- [Header rewrites](docs/en/configuration-header_rewrites.md): Request and response header rewriting.
-- [Body rewrites](docs/en/configuration-body_rewrites.md): Request and response body rewriting, including JQ expressions.
-- [HTTP captures](docs/en/configuration-http_captures.md): Capturing and exporting HTTP traffic.
-- [Modules](docs/en/configuration-modules.md): Modules, remote module references and argument substitution.
+- [URL rewrites](.agents/skills/skills/egern-docs/docs/en/configuration-url_rewrites.md): URL rewrite rules for MITM traffic.
+- [Header rewrites](.agents/skills/skills/egern-docs/docs/en/configuration-header_rewrites.md): Request and response header rewriting.
+- [Body rewrites](.agents/skills/skills/egern-docs/docs/en/configuration-body_rewrites.md): Request and response body rewriting, including JQ expressions.
+- [HTTP captures](.agents/skills/skills/egern-docs/docs/en/configuration-http_captures.md): Capturing and exporting HTTP traffic.
+- [Modules](.agents/skills/skills/egern-docs/docs/en/configuration-modules.md): Modules, remote module references and argument substitution.
 
 ## Tutorials
 
-- [Proxy tutorial](docs/en/example-proxy.md): Step-by-step setup of a proxy configuration.
-- [HTTP sniffer tutorial](docs/en/example-http-traffic-sniffer.md): Step-by-step HTTPS interception setup with certificates.
+- [Proxy tutorial](.agents/skills/skills/egern-docs/docs/en/example-proxy.md): Step-by-step setup of a proxy configuration.
+- [HTTP sniffer tutorial](.agents/skills/skills/egern-docs/docs/en/example-http-traffic-sniffer.md): Step-by-step HTTPS interception setup with certificates.
 
 ## 中文文档
 
-- [产品介绍](docs/zh-CN/intro.md): Egern 是什么：流量记录、规则类型、策略组、支持的协议与脚本能力。
-- [常见问题](docs/zh-CN/faq.md): Egern 使用与配置的常见问题。
-- [URL Scheme](docs/zh-CN/url-scheme.md): 用于自动化与捷径的 egern:// URL Scheme。
-- [完整配置示例](docs/zh-CN/configuration-example.md): 带全局字段注释的完整 Profile.yaml 示例。
-- [代理节点](docs/zh-CN/configuration-proxies.md): 代理节点定义与协议：HTTP、SOCKS5、Shadowsocks、Trojan、Hysteria2、VLESS、VMess。
-- [策略组](docs/zh-CN/configuration-policy_groups.md): 策略组、组类型、节点筛选、flatten 与订阅。
-- [分流规则](docs/zh-CN/configuration-rules.md): 分流规则语法与规则集，包括远程规则集引用。
-- [DNS](docs/zh-CN/configuration-dns.md): Bootstrap、上游 DNS、Forward 规则、代理 DNS、block_ips 与 DoH/DoT/DoQ/DoH3。
-- [JavaScript API](docs/zh-CN/javascript-api.md): 脚本运行时 API：ctx 对象、HTTP 请求、持久化存储、通知与 SSH。
-- [脚本](docs/zh-CN/configuration-scriptings.md): 脚本配置：http_request、http_response、schedule、generic 与 network 五种脚本类型。
-- [环境变量](docs/zh-CN/configuration-env.md): 脚本与模块可读取的环境变量。
-- [小组件](docs/zh-CN/configuration-widgets.md): 用于主屏小组件与脚本面板的 Widget DSL。
-- [URL 重写](docs/zh-CN/configuration-url_rewrites.md): 针对 MITM 流量的 URL 重写规则。
-- [HTTP 头重写](docs/zh-CN/configuration-header_rewrites.md): 请求头与响应头重写。
-- [HTTP 正文重写](docs/zh-CN/configuration-body_rewrites.md): 请求正文与响应正文重写，包括 JQ 表达式。
-- [HTTP 抓包](docs/zh-CN/configuration-http_captures.md): HTTP 流量的抓取与导出。
-- [模块](docs/zh-CN/configuration-modules.md): 模块、远程模块引用与参数替换。
-- [代理教程](docs/zh-CN/example-proxy.md): 从零配置代理的分步教程。
-- [抓包教程](docs/zh-CN/example-http-traffic-sniffer.md): 配置证书与 HTTPS 中间人抓包的分步教程。
+- [产品介绍](.agents/skills/skills/egern-docs/docs/zh-CN/intro.md): Egern 是什么：流量记录、规则类型、策略组、支持的协议与脚本能力。
+- [常见问题](.agents/skills/skills/egern-docs/docs/zh-CN/faq.md): Egern 使用与配置的常见问题。
+- [URL Scheme](.agents/skills/skills/egern-docs/docs/zh-CN/url-scheme.md): 用于自动化与捷径的 egern:// URL Scheme。
+- [完整配置示例](.agents/skills/skills/egern-docs/docs/zh-CN/configuration-example.md): 带全局字段注释的完整 Profile.yaml 示例。
+- [代理节点](.agents/skills/skills/egern-docs/docs/zh-CN/configuration-proxies.md): 代理节点定义与协议：HTTP、SOCKS5、Shadowsocks、Trojan、Hysteria2、VLESS、VMess。
+- [策略组](.agents/skills/skills/egern-docs/docs/zh-CN/configuration-policy_groups.md): 策略组、组类型、节点筛选、flatten 与订阅。
+- [分流规则](.agents/skills/skills/egern-docs/docs/zh-CN/configuration-rules.md): 分流规则语法与规则集，包括远程规则集引用。
+- [DNS](.agents/skills/skills/egern-docs/docs/zh-CN/configuration-dns.md): Bootstrap、上游 DNS、Forward 规则、代理 DNS、block_ips 与 DoH/DoT/DoQ/DoH3。
+- [JavaScript API](.agents/skills/skills/egern-docs/docs/zh-CN/javascript-api.md): 脚本运行时 API：ctx 对象、HTTP 请求、持久化存储、通知与 SSH。
+- [脚本](.agents/skills/skills/egern-docs/docs/zh-CN/configuration-scriptings.md): 脚本配置：http_request、http_response、schedule、generic 与 network 五种脚本类型。
+- [环境变量](.agents/skills/skills/egern-docs/docs/zh-CN/configuration-env.md): 脚本与模块可读取的环境变量。
+- [小组件](.agents/skills/skills/egern-docs/docs/zh-CN/configuration-widgets.md): 用于主屏小组件与脚本面板的 Widget DSL。
+- [URL 重写](.agents/skills/skills/egern-docs/docs/zh-CN/configuration-url_rewrites.md): 针对 MITM 流量的 URL 重写规则。
+- [HTTP 头重写](.agents/skills/skills/egern-docs/docs/zh-CN/configuration-header_rewrites.md): 请求头与响应头重写。
+- [HTTP 正文重写](.agents/skills/skills/egern-docs/docs/zh-CN/configuration-body_rewrites.md): 请求正文与响应正文重写，包括 JQ 表达式。
+- [HTTP 抓包](.agents/skills/skills/egern-docs/docs/zh-CN/configuration-http_captures.md): HTTP 流量的抓取与导出。
+- [模块](.agents/skills/skills/egern-docs/docs/zh-CN/configuration-modules.md): 模块、远程模块引用与参数替换。
+- [代理教程](.agents/skills/skills/egern-docs/docs/zh-CN/example-proxy.md): 从零配置代理的分步教程。
+- [抓包教程](.agents/skills/skills/egern-docs/docs/zh-CN/example-http-traffic-sniffer.md): 配置证书与 HTTPS 中间人抓包的分步教程。
 
 ## Optional
 
 - [llms-full.txt](llms-full.txt): every English page in one file, for context windows that can hold the whole documentation.
-- [.agents/skills/egern-docs/SKILL.md](.agents/skills/egern-docs/SKILL.md): agent skill definition that routes questions to the right page.
+- [.agents/skills/skills/egern-docs/SKILL.md](.agents/skills/skills/egern-docs/SKILL.md): agent skill definition that routes questions to the right page.

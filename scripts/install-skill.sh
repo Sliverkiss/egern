@@ -1,11 +1,22 @@
 #!/usr/bin/env bash
-# Install the egern-docs skill into a Claude Code skills directory.
-# Links (not copies) so the skill always reads the current snapshot.
+# Install the self-contained egern-docs skill into an agent skills directory.
+#
+#   ./scripts/install-skill.sh                      # -> ~/.claude/skills
+#   ./scripts/install-skill.sh ~/.agents/skills     # any other skills dir
+#
+# The skill directory carries its own docs snapshot, so one symlink is enough.
+# Symlinked (not copied) so it always reads the current snapshot.
 set -euo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SOURCE="$REPO/.agents/skills/skills/egern-docs"
 SKILLS_DIR="${1:-$HOME/.claude/skills}"
 TARGET="$SKILLS_DIR/egern-docs"
+
+if [ ! -d "$SOURCE" ]; then
+  echo "error: skill source not found at $SOURCE" >&2
+  exit 1
+fi
 
 mkdir -p "$SKILLS_DIR"
 
@@ -14,9 +25,6 @@ if [ -e "$TARGET" ] && [ ! -L "$TARGET" ]; then
   exit 1
 fi
 
-# The skill directory carries a relative `docs` symlink to the snapshot,
-# so one link is enough and relative resolution keeps working.
-ln -sfn "$REPO/.agents/skills/egern-docs" "$TARGET"
+ln -sfn "$SOURCE" "$TARGET"
 
-echo "installed: $TARGET -> $REPO/.agents/skills/egern-docs"
-echo "docs:      $TARGET/docs -> $REPO/docs"
+echo "installed: $TARGET -> $SOURCE"

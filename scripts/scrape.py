@@ -24,7 +24,8 @@ from html.parser import HTMLParser
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-DOCS_DIR = ROOT / "docs"
+DOCS_DIR = ROOT / ".agents" / "skills" / "skills" / "egern-docs" / "docs"
+DOCS_LINK = str(DOCS_DIR.relative_to(ROOT))
 BASE_URL = "https://egernapp.com"
 USER_AGENT = "egern-docs-snapshot/1.0 (+https://github.com/Sliverkiss/egern)"
 LANGUAGES = ("en", "zh-CN")
@@ -497,13 +498,13 @@ def generate_llms_txt() -> str:
         "Chinese documentation: https://egernapp.com/zh-CN/docs",
         "App Store: https://apps.apple.com/app/id1616105820",
         "",
-        "Every page is a Markdown file under `docs/en/` and `docs/zh-CN/`.",
+        f"Every page is a Markdown file under `{DOCS_LINK}/en/` and `{DOCS_LINK}/zh-CN/`.",
         "`llms-full.txt` contains all English pages concatenated in this order.",
         "",
     ]
 
     def entry(slug: str, title: str, summary: str, language: str) -> str:
-        relative = f"docs/{language}/{slug.replace('/', '-')}.md"
+        relative = f"{DOCS_LINK}/{language}/{slug.replace('/', '-')}.md"
         return f"- [{title}]({relative}): {summary}"
 
     english = {slug: (title, summary) for slug, title, _zh, summary, _zhs in PAGES}
@@ -557,7 +558,7 @@ def generate_llms_txt() -> str:
         "for context windows that can hold the whole documentation."
     )
     body.append(
-        "- [.agents/skills/egern-docs/SKILL.md](.agents/skills/egern-docs/SKILL.md): "
+        f"- [{DOCS_LINK.rsplit('/docs', 1)[0]}/SKILL.md]({DOCS_LINK.rsplit('/docs', 1)[0]}/SKILL.md): "
         "agent skill definition that routes questions to the right page."
     )
     body.append("")

@@ -14,6 +14,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
 
 from scrape import (  # noqa: E402
+    DOCS_LINK,
     collapse_paragraph,
     code_text,
     doc_url,
@@ -112,9 +113,11 @@ class TestLlmsTxt(unittest.TestCase):
         text = generate_llms_txt()
         for slug, *_ in PAGES:
             for language in ("en", "zh-CN"):
-                relative = f"docs/{language}/{slug.replace('/', '-')}.md"
+                relative = f"{DOCS_LINK}/{language}/{slug.replace('/', '-')}.md"
                 self.assertIn(relative, text)
         self.assertNotIn("## Getting started\n\n## Getting started", text)
+        skill_link = DOCS_LINK.rsplit("/docs", 1)[0] + "/SKILL.md"
+        self.assertEqual(text.count(f"]({skill_link})"), 1)
 
 
 if __name__ == "__main__":

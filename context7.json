@@ -3,10 +3,9 @@
   "projectTitle": "Egern",
   "description": "Rule-based proxy client for iOS, iPadOS and macOS. Covers Profile YAML: proxies and protocols, policy groups, rules and rule sets, DNS, modules, URL/header/body rewrites, HTTP captures, widgets and JavaScript scripting.",
   "folders": [
-    "docs/en"
+    ".agents/skills/skills/egern-docs/docs/en"
   ],
   "excludeFolders": [
-    "docs/zh-CN",
     "scripts",
     "tests",
     ".github"
