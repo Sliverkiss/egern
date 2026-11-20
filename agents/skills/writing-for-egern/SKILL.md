@@ -60,10 +60,10 @@ Module skeleton — the ladder's output shapes, most common first:
 ```yaml
 name: <app> 去广告
 description: <what it blocks; note if app cache must be cleared>
-author: <you>
+author: <original author(s) from the sources — we integrate, not originate>
 homepage: <this repo>
-icon: <App Store icon 104×104 per the tables>
-# merged from: <repo@date, repo@date>
+icon: <source module's icon if one exists; else App Store 104×104 per the tables>
+# merged from: <repo@date → what it contributed, repo@date → …>
 
 url_rewrites:
   - match: '^https?://api\.example\.com/ads'

@@ -1,8 +1,5 @@
 # Where community modules live
 
-Search order when absorbing: search GitHub code for the app's domains and
-names in each client's format, weigh by freshness and specificity, then merge.
-
 ## Repo map
 
 | Repo | Formats | Weight |
@@ -49,10 +46,9 @@ Merge the found modules into one Egern module:
 
 ## Script-Hub — syntax edge-case reference
 
-We produce native Egern only; Script-Hub is never referenced from an output
-module. Its value is research: when a source construct is ambiguous (a rare
-Loon v2 action, an odd Map Local header shape), check how its parsers
-normalize it:
+Research only, never output (the conversion tables own that rule). When a
+source construct is ambiguous — a rare Loon v2 action, an odd Map Local
+header shape — check how its parsers normalize it:
 
 - `Rewrite-Parser.js` — parses QX rewrite / Surge module / Loon plugin /
   Shadowrocket module. Search it for the construct to see the canonical

@@ -12,13 +12,20 @@ fix the mapping here.
 | Loon plugin | `#!name = ` `#!desc = ` `#!icon = ` `#!author = ` | same fields |
 | QX conf | `#!name=` or bare comments | same fields; a bare `# > App - Tag` first comment is the name |
 
-`icon` rule: use the app's own App Store icon at 104×104. Look the app up
-(`itunes.apple.com/lookup?id=<appId>&country=cn`, the appId is usually in
-the source module's `App链接=`/`#!system` header or searchable by name),
-take `artworkUrl512`, and rewrite the trailing size segment to
-`104x104bb.jpg` — mzstatic serves any size on the same path. Fallback
-when no appId is found: an SF Symbol name (`shield.fill`), never another
-project's icon CDN.
+`icon` rule, in order: (1) a source module already carries an icon URL —
+use it as-is, it points at the community's icon CDN that stays stable
+across their updates; (2) no icon anywhere — the app's own App Store icon
+at 104×104: look the app up (`itunes.apple.com/lookup?id=<appId>&country=cn`,
+the appId is usually in the source module's `App链接=`/`#!system` header
+or searchable by name), take `artworkUrl512`, rewrite the trailing size
+segment to `104x104bb.jpg`; (3) no appId either — an SF Symbol name
+(`shield.fill`).
+
+`author` rule: the field carries the original authors, not us — we
+integrate, we don't originate. Multiple sources: list each with what
+they contributed in the provenance comments; `author` itself takes the
+main script/rewrite author (the `#!author=` header value), or a
+comma-joined list when contributions are co-equal.
 
 ## URL rewrites
 
@@ -96,9 +103,7 @@ replace` pair.
 
 **3. Real logic → port natively.** Only scripts with branching, state,
 storage, or cross-request work stay scripts: port to
-`export default async (ctx)` per the port map below. No Script-Hub
-references, no external conversion hosting — the module stays
-self-contained.
+`export default async (ctx)` per the port map below.
 
 Port map:
 
