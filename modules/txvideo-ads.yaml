@@ -1,0 +1,76 @@
+name: 腾讯视频净化
+description: 移除腾讯视频开屏、贴片、暂停广告及底部短剧/好物 tab，需清缓存或重装生效。
+author: ZenmoFeiShi, Sliverkiss
+homepage: https://github.com/ZenmoFeiShi/Qx
+icon: https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/31/23/ea/3123eacb-c58b-0c39-ba46-39acda14dc32/AppIcon-0-0-1x_U007epad-0-1-0-0-sRGB-85-220.png/104x104bb.jpg
+# merged from:
+#   ZenmoFeiShi/Qx (TxvideoAD.snippet + Txvideoad.js, 2026-11-03) — 全部内容
+# absorption:
+#   snippet 两行 QX host reject (iacc.stgw.qq.com / tacc.video.qq.com) → rules domain reject
+#     （QX host reject 是 TLS 前按域名拦截；Egern 对应原生 rules: domain + policy REJECT，
+#       不需要 mitm，也不该走 url_rewrites——那需要解密才看得见 URL）
+#   rdelivery tab_gray 字符串替换 → 保留在脚本内（与 iacc/i.video 同一脚本分发）
+#   i.video.qq.com trpc 二进制请求/响应改写、iacc.qq.com JCE 广告单手术、
+#     config.ab.qq.com AB 实验（精简模式/禁 QUIC/禁预解析）——789 行二进制协议解析，
+#     阶梯第三级：真逻辑，原生移植，逻辑零改动，仅外壳适配
+#   $request/$response/$done → ctx adapter（scripts/txvideo-ad.js 头部注释有完整映射表）
+#   脚本内十六个 trpc 广告接口黑名单、JCE cmd 常量表：kept 原样
+# conflicts resolved: 无——单一权威源（上游仅此一份）
+# icon: 上游 snippet 无图标 → App Store 腾讯视频图标 104×104（图标规则第 2 级，512x512bb 段改 104x104bb，实测 200）
+
+rules:
+  # 开屏/贴片统计上报域名级拦截（原 QX host reject 两行，TLS 前生效）
+  - domain:
+      match: iacc.stgw.qq.com
+      policy: REJECT
+  - domain:
+      match: tacc.video.qq.com
+      policy: REJECT
+
+scriptings:
+  # i.video.qq.com trpc：请求体改写（贴片广告请求置空）
+  - http_request:
+      name: 腾讯视频trpc请求
+      match: '^https?:\/\/i\.video\.qq\.com\/(?:\?.*)?$'
+      script_url: https://raw.githubusercontent.com/Sliverkiss/egern/main/scripts/txvideo-ad.js
+      binary_body: true
+      body_required: true
+      timeout: 15
+  # i.video.qq.com trpc：响应体改写（开屏/贴片/暂停广告单清除）
+  - http_response:
+      name: 腾讯视频trpc响应
+      match: '^https?:\/\/i\.video\.qq\.com\/(?:\?.*)?$'
+      script_url: https://raw.githubusercontent.com/Sliverkiss/egern/main/scripts/txvideo-ad.js
+      binary_body: true
+      body_required: true
+      timeout: 15
+  # iacc.qq.com：JCE 广告响应手术
+  - http_response:
+      name: 腾讯视频JCE广告
+      match: '^https?:\/\/iacc\.qq\.com\/(?:\?.*)?$'
+      script_url: https://raw.githubusercontent.com/Sliverkiss/egern/main/scripts/txvideo-ad.js
+      binary_body: true
+      body_required: true
+      timeout: 15
+  # rdelivery.qq.com：tab_gray 字符串替换
+  - http_response:
+      name: 腾讯视频tab配置
+      match: '^https?:\/\/rdelivery\.qq\.com\/v1\/sdkconfig\/get(?:\?.*)?$'
+      script_url: https://raw.githubusercontent.com/Sliverkiss/egern/main/scripts/txvideo-ad.js
+      body_required: true
+      timeout: 15
+  # config.ab.qq.com：AB 实验注入（精简模式/禁 QUIC/禁预解析）
+  - http_response:
+      name: 腾讯视频AB配置
+      match: '^https?:\/\/config\.ab\.qq\.com\/tab\/GetTabRemoteConfig(?:\?.*)?$'
+      script_url: https://raw.githubusercontent.com/Sliverkiss/egern/main/scripts/txvideo-ad.js
+      binary_body: true
+      body_required: true
+      timeout: 15
+
+mitm:
+  hostnames:
+    - i.video.qq.com
+    - iacc.qq.com
+    - config.ab.qq.com
+    - rdelivery.qq.com
