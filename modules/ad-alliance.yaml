@@ -1,31 +1,24 @@
 name: 广告联盟去广告
 description: 拦截穿山甲、优量汇、快手联盟三家广告联盟 SDK 请求，需清缓存或重装生效。
-author: app2smile, NobyDa, Sliverkiss
-homepage: https://github.com/Sliverkiss/egern
+author: app2smile
+homepage: https://github.com/app2smile/rules
 icon: https://raw.githubusercontent.com/sooyaaabo/IconLibrary/main/Other/AdReject.png
-# merged from:
-#   app2smile/rules (adsense.conf/sgmodule/plugin, 作者 app2smile) — 三联盟改错误码脚本 → 本模块 jq 复刻
-#   NobyDa/Script + 37 源共识 (ad_union 等) — 字节系 snssdk/tiktokv 广告接口 reject
-#   Jianyuann/Shadowrocket-Rules, Zz1xuan/ONE, zwf234/rules, urnuts/haproxy — pangolin stats/settings、gurd.snssdk 等补充
-# absorption:
-#   app2smile 的 adsense.js（67 行三分支脚本）降为单个 response_jq：
+# source: app2smile/rules module/adsense.conf
+#   https://raw.githubusercontent.com/app2smile/rules/master/module/adsense.conf
+#   三联盟改错误码脚本 → 本模块 jq 复刻:
 #     穿山甲 has(message) → 伪造无填充响应（status_code 20001，官方"填充率控制"错误码）
 #     优量汇 ret==0 → ret=102006（官方"无广告返回"错误码）
 #     快手联盟 result==1 → result=40003（官方"无广告"错误码）
 #   三种 body 形态键名互斥（message/ret/result），jq has() 分支可精确区分，
 #   不依赖 URL 和请求方法 —— 已用三种真实 payload 验证全通过
 #   js 里的 $notification 调试通知、console.log 日志：dropped（通知是调试用，打扰用户）
-# conflicts resolved:
-#   get_ads 端点上 script-response-body（app2smile 派，30+ 源沿用）beat 裸 reject（多源）：
-#     裸 reject 会断 SDK 预期响应触发重试风暴，改错误码让 SDK 认为"无填充"正常结束
-#   mi.gdt.qq.com/gdt_mview.fcg: 改错误码 beat reject-200/map-local（同理）
-#   字节系 ad 接口: reject beat reject-200（37+ 源大共识，广告 SDK 无 body 依赖）
-#   (?>...) 原子组模式（单源 sve1r/Rules-For-Quantumult-X）: dropped（Egern 引擎不认，同域已有等价 reject）
+#   字节系 reject 端点、mitm 整域通配（snssdk/tiktokv 等会破坏抖音评论加载）：
+#   dropped —— 严格对齐 app2smile 单一来源
 
 body_rewrites:
   # 三联盟统一改错误码（原 app2smile adsense.js 的 jq 复刻）
   - response_jq:
-      match: '^https?:\/\/(api-access\.pangolin-sdk-toutiao\.com\/api\/ad\/union\/sdk\/get_ads|is\.snssdk\.com\/api\/ad\/union\/sdk\/get_ads|open\.e\.kuaishou\.com\/rest\/e\/v3\/open\/univ|mi\.gdt\.qq\.com\/gdt_mview\.fcg)'
+      match: '^https?:\/\/(api-access\.pangolin-sdk-toutiao\.com\/api\/ad\/union\/sdk\/get_ads|open\.e\.kuaishou\.com\/rest\/e\/v3\/open\/univ|mi\.gdt\.qq\.com\/gdt_mview\.fcg)'
       filter: >-
         if has("message")
         then {"request_id":"F5617E54-3FF4-4052-9B09-4227D09B5105","status_code":20001,"reason":112}
@@ -33,36 +26,8 @@ body_rewrites:
         elif has("result") and .result == 1 then .result = 40003
         else . end
 
-url_rewrites:
-  # ---- 字节系广告接口（37+ 源共识）----
-  - match: '^https?:\/\/[\w-]+\.(amemv|musical|snssdk|tiktokv)\.(com|ly)\/(api|motor)\/ad'
-    location: http://reject/
-  - match: '^https?:\/\/[\w-]+\.snssdk\.com\/.+_ad'
-    location: http://reject/
-  # 弹屏/活动配置（28 源）
-  - match: '^https?:\/\/[\w-]+\.snssdk\.com\/motor\/operation\/activity\/display\/config\/v2'
-    location: http://reject/
-  # 字节广告包/埋点
-  - match: '^https?:\/\/gurd\.snssdk\.com\/src\/server\/v3\/package'
-    location: http://reject/
-  # ---- 穿山甲补充端点（jq 主端点之外的统计/设置/落地页）----
-  - match: '^https?:\/\/api-access\.pangolin-sdk-toutiao\d?\.com\/api\/ad\/union\/sdk\/(stats|settings)'
-    location: http://reject/
-  - match: '^https?:\/\/ether-pack\.pangolin-sdk-toutiao\.com\/union\/endcard'
-    location: http://reject/
-  - match: '^https?:\/\/(log-api\.pangolin-sdk-toutiao\.com|gromore\.pangolin-sdk-toutiao\.com)'
-    location: http://reject-200/
-
 mitm:
   hostnames:
     - api-access.pangolin-sdk-toutiao.com
-    - is.snssdk.com
     - open.e.kuaishou.com
     - mi.gdt.qq.com
-    - '*.snssdk.com'
-    - '*.amemv.com'
-    - '*.musical.ly'
-    - '*.tiktokv.com'
-    - ether-pack.pangolin-sdk-toutiao.com
-    - log-api.pangolin-sdk-toutiao.com
-    - gromore.pangolin-sdk-toutiao.com
