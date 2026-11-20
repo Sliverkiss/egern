@@ -1,0 +1,48 @@
+name: RevenueCat 通用解锁
+description: 将 RevenueCat 订阅校验请求 307 至伪造订阅者接口，实现 RevenueCat 计费类 App 通用解锁。部分 App 需清除缓存或重装后生效；会因 App 版本更新或 Worker 失效而失效。
+author: tistzach, Sliverkiss
+homepage: https://github.com/Sliverkiss/egern
+icon: https://raw.githubusercontent.com/BOBOLAOSHIV587/Rules/main/Icons/AppIcons/Image/App/RevenueCat-icon.png
+# merged from:
+#   Sliverkiss 本地 QX 配置 (revenue-cat.tistzach.workers.dev) — 307 跳转主 rewrite
+#   githubdulong/Script (Surge 通用解锁, 原作 langkhach270389) — Header Rewrite 缓存头清除
+#   BOBOLAOSHIV587/Rules (Revenuecat 系列解锁合集, 原作 叮当猫chxm1023 等) — 图标
+# absorption:
+#   QX `url 307` → url_rewrites status_code: 307（redirect 模式）
+#   Surge `header-del` × 4 → header_rewrites delete（去掉 RevenueCat 的 ETag/条件请求头，
+#     避免本地缓存命中后跳过校验请求，解锁不生效）
+# conflicts resolved:
+#   BOBOLAOSHIV587/Rules 用 JS 脚本改写响应体（本地伪造 entitlements）——
+#   dropped：本地已有 tistzach Worker 307 方案，改写响应体的脚本方案仅作备选，
+#   307 到远端伪造接口由 Worker 统一返回数据，无需维护逐 App 脚本
+#   307 与 Surge `header` 模式（透明转发）二选一：保留 307，客户端可见跳转但实现最简
+
+url_rewrites:
+  # 订阅校验（receipts 回执 / subscribers 订阅者查询）307 至伪造接口
+  - match: '^https:\/\/api\.(revenuecat|rc-backup)\.com\/.+\/(receipts$|subscribers\/[^/]+$)'
+    location: https://revenue-cat.tistzach.workers.dev
+    status_code: 307
+
+header_rewrites:
+  # 清除缓存条件请求头，强制每次都真正发出校验请求（否则命中 304 缓存，307 不触发）
+  - delete:
+      match: '^https:\/\/api\.(revenuecat|rc-backup)\.com\/.+'
+      name: If-Modified-Since
+      type: request
+  - delete:
+      match: '^https:\/\/api\.(revenuecat|rc-backup)\.com\/.+'
+      name: If-None-Match
+      type: request
+  - delete:
+      match: '^https:\/\/api\.(revenuecat|rc-backup)\.com\/.+'
+      name: X-RevenueCat-ETag
+      type: request
+  - delete:
+      match: '^https:\/\/api\.(revenuecat|rc-backup)\.com\/.+'
+      name: x-revenuecat-etag
+      type: request
+
+mitm:
+  hostnames:
+    - api.revenuecat.com
+    - api.rc-backup.com

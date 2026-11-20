@@ -666,6 +666,9 @@ mitm:
     - neal.fun
     - stackoverflow.com
     - javtiful.com
+    - javtiful.live
+    - javtiful.ws
+    - javtiful.ai
     - playa.huaren.live
     - m.imdb.com
     - www.rottentomatoes.com
@@ -736,6 +739,9 @@ mitm:
     - huaren.live
     - op.gg
     - bi-girl.net
+    - bi-girl.ws
+    - bi-girl.com
+    - bi-girl.ai
     - bf.bfdm.xyz
     - www.dmmiku.com
     - cupfoxapp.tv
@@ -1078,7 +1084,13 @@ mitm:
     - missav.ws
     - missav.ai
     - missav.com
+    - creative.live.missav.com
+    - creative.live.missav.ai
+    - creative.live.missav.ws
     - njavtv.com
+    - njavtv.live
+    - njavtv.ws
+    - njavtv.ai
     - www.libvio.top
     - www.libvio.fun
     - www.libvio.pro
@@ -1099,6 +1111,7 @@ mitm:
     - www.javdb.com
     - javdb.com
     - '*.javbus.*'
+    - www.javbus.com
     - www.baidu.com
     - m.baidu.com
     - zhidao.baidu.com

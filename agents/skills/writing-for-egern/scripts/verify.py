@@ -69,9 +69,53 @@ def hosts_in(patterns: list[str]) -> set[str]:
     found: set[str] = set()
     for pattern in patterns:
         plain = pattern.replace("\\", "").replace("\\/", "/")
-        for host in HOST_IN_PATTERN.findall(plain):
-            found.add(host.lower())
+        # expand top-level alternations: api.(revenuecat|rc-backup).com
+        # → api.revenuecat.com, api.rc-backup.com — one branch per expansion
+        for variant in expand_alternations(plain):
+            for host in HOST_IN_PATTERN.findall(variant):
+                found.add(host.lower())
     return found
+
+
+def expand_alternations(pattern: str) -> list[str]:
+    """Split a regex with top-level (a|b) groups into branch permutations."""
+    variants: list[str] = [pattern]
+    for _ in range(10):  # bounded: nested groups can multiply
+        next_round: list[str] = []
+        for text in variants:
+            cut = _first_alternation(text)
+            if cut is None:
+                next_round.append(text)
+                continue
+            start, end = cut
+            for branch in text[start + 1:end].split("|"):
+                next_round.append(text[:start] + branch + text[end + 1:])
+        if next_round == variants:
+            break
+        variants = next_round
+        if len(variants) > 64:
+            break
+    return variants
+
+
+def _first_alternation(pattern: str) -> tuple[int, int] | None:
+    """Innermost span of a (...) group whose body contains a top-level |."""
+    stack: list[int] = []
+    for index, char in enumerate(pattern):
+        if char == "(" and not _is_group_start_escaped(pattern, index):
+            stack.append(index)
+        elif char == ")" and stack:
+            start = stack.pop()
+            body = pattern[start + 1:index]
+            if "|" in body and "(" not in body:
+                return start, index
+    return None
+
+
+def _is_group_start_escaped(pattern: str, index: int) -> bool:
+    """True for lookarounds and other (?...) special groups — leave them whole."""
+    following = pattern[index + 1:index + 2]
+    return following == "?" or (following == "P" and pattern[index + 2:index + 3] == "<")
 
 
 def mitm_hosts(block: str) -> set[str]:
