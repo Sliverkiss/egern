@@ -25,8 +25,6 @@ from these pages, checked against the page for the section you are writing.
 2. Long page: search the field, protocol or section heading, then read that
    section plus the shared fields it references. You are done when every
    field you emit appears on the page for that section.
-3. Cross-module work — a module carrying a script or a widget — read each
-   part's page plus `env` and `modules`.
 
 ## Profiles
 
@@ -44,7 +42,6 @@ upstream group, rule set, module — resolves to a definition in the profile.
 - Say whether an example is a complete profile or a fragment.
 - Cite the page used. Each page's frontmatter `fetched` date marks the
   snapshot; the live version is `https://egernapp.com/docs/<slug>`.
-- Claim device testing only if it actually happened.
 
 ## Navigation
 

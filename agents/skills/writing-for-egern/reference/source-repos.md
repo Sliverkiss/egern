@@ -30,21 +30,6 @@ Then, in GitHub code search:
 Freshness check: the module's `#!date` header or the file's last commit.
 Prefer repos updated within the last year; ad endpoints rot fast.
 
-## Script-Hub — syntax edge-case reference
-
-We produce native Egern only; Script-Hub is never referenced from an output
-module. Its value is research: when a source construct is ambiguous (a rare
-Loon v2 action, an odd Map Local header shape), check how its parsers
-normalize it:
-
-- `Rewrite-Parser.js` — parses QX rewrite / Surge module / Loon plugin /
-  Shadowrocket module. Search it for the construct to see the canonical
-  shape (reject variants, Map Local data types, argument syntax).
-- `script-converter.js` — script runtime conversions; its Env layer shows
-  which legacy APIs map to what, useful to sanity-check the port table in
-  conversion-tables.md.
-- `tests/fixtures/` — real-world module samples (lpx, jq) for odd syntax.
-
 ## Merge policy (dedup rules)
 
 Merge the found modules into one Egern module:
@@ -61,3 +46,18 @@ Merge the found modules into one Egern module:
    grow by accretion, newest = most current endpoints.
 5. Provenance block at the module top (comments): which repos, which dates
    were merged. One line per source.
+
+## Script-Hub — syntax edge-case reference
+
+We produce native Egern only; Script-Hub is never referenced from an output
+module. Its value is research: when a source construct is ambiguous (a rare
+Loon v2 action, an odd Map Local header shape), check how its parsers
+normalize it:
+
+- `Rewrite-Parser.js` — parses QX rewrite / Surge module / Loon plugin /
+  Shadowrocket module. Search it for the construct to see the canonical
+  shape (reject variants, Map Local data types, argument syntax).
+- `script-converter.js` — script runtime conversions; its Env layer shows
+  which legacy APIs map to what, useful to sanity-check the port table in
+  conversion-tables.md.
+- `tests/fixtures/` — real-world module samples (lpx, jq) for odd syntax.

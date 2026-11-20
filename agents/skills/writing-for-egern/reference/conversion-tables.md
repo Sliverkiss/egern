@@ -1,9 +1,8 @@
 # Conversion tables
 
-Source-client syntax → Egern field, for every construct a community module
-carries. Egern docs (`egern-docs` skill) are the authority on the right-hand
-column; this file is the authority on the left-hand column and the mapping
-itself. When the mapping and the docs disagree, the docs win — fix this file.
+Source-client syntax → Egern field. The `egern-docs` skill owns the
+right-hand column; this file owns the mapping. On conflict the docs win —
+fix the mapping here.
 
 ## Metadata headers
 
