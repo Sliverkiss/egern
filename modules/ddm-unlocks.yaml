@@ -295,7 +295,7 @@ body_rewrites:
 # === tiku.js — 题库大全（同作者 14 个 App 共用一个接口形态）
 # 解锁: VIP — common/front/customer 与 vip/getValidTime 两路
 # 原脚本: https://raw.githubusercontent.com/chxm1023/Rewrite/main/tiku.js
-# mitm: iosapi.yueshuian.com 等 10 个域名
+# mitm: iosapi.yueshuian.com, question.tiku.cqxcj.top, base.cmoe.top, yyapi.yayingtk.com, learn.cqrry.com, api.sryx.net, api.meigit.com, question.api.anjiazui.com, app.bftk.com.cn, question.civil.shaoeyy.com
   - response_jq:
       match: '^https?://(iosapi\.yueshuian|question\.tiku\.cqxcj|base\.cmoe|yyapi\.yayingtk|learn\.cqrry|api\.sryx|api\.meigit|question\.api\.anjiazui|app\.bftk|question\.civil\.shaoeyy)\.(com|top|net).+(common|front/customer)'
       filter: >-
@@ -3129,6 +3129,7 @@ mitm:
     - 'api.lispod.cn'
     - 'api.mattingm.com'
     - 'api.meiease.cn'
+    - 'api.meigit.com'
     - 'api.moises.ai'
     - 'api.mojidict.com'
     - 'api.onepiece.life'
@@ -3140,6 +3141,7 @@ mitm:
     - 'api.qwapp.top'
     - 'api.rawpixlive.com'
     - 'api.shuaika.com'
+    - 'api.sryx.net'
     - 'api.timetreeapp.com'
     - 'api.trancy.org'
     - 'api.tuzhitong.com'
@@ -3150,6 +3152,7 @@ mitm:
     - 'apis.zhangthree.cn'
     - 'apiv2.somuseai.com'
     - 'apiv2.xiaobeiyangji.com'
+    - 'app.bftk.com.cn'
     - 'app.txcfgl.com'
     - 'app.yidiansz.com'
     - 'app.yjai.art'
@@ -3161,6 +3164,7 @@ mitm:
     - 'asia.gikken.co'
     - 'backend.getdrafts.com'
     - 'baimiao.uzero.cn'
+    - 'base.cmoe.top'
     - 'bd-api.kuwo.cn'
     - 'bellybook-app-api.bellybook.cn'
     - 'billing-ios.wallpaperscraft.com'
@@ -3207,7 +3211,7 @@ mitm:
     - 'integral2.*.com'
     - 'ios.bugly.qq.com'
     - 'iosapi.peiyinxiu.com'
-    - 'iosapi.yueshuian.com 等 10 个域名'
+    - 'iosapi.yueshuian.com'
     - 'iosdzhtyqy.sanwubeixin.cn'
     - 'iosv2.cjapi.5fun.com'
     - 'jz.wacaijizhang.com'
@@ -3216,6 +3220,7 @@ mitm:
     - 'kongque.twan.cn'
     - 'laipicapp.laihua.com'
     - 'leancloud.emotionwp.com'
+    - 'learn.cqrry.com'
     - 'lentoapp.com'
     - 'liujia95.xyz'
     - 'ljh.dianxiaoman.com'
@@ -3252,6 +3257,9 @@ mitm:
     - 'qdq.9sm.net'
     - 'qianji.xxoojoke.com'
     - 'qifu.pro'
+    - 'question.api.anjiazui.com'
+    - 'question.civil.shaoeyy.com'
+    - 'question.tiku.cqxcj.top'
     - 'receipt-verifier.cdwapi.com'
     - 'scanner.jianse.tv'
     - 'schedule-api.julanling.com'
@@ -3297,5 +3305,6 @@ mitm:
     - 'yimutodo.com'
     - 'yopu.co'
     - 'youxifanyizhushou.com'
+    - 'yyapi.yayingtk.com'
     - 'zwpp.wzbz123.com'
     - 'zy6kcqa01a.execute-api.us-east-2.amazonaws.com'

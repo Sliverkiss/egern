@@ -10,8 +10,10 @@ Checks, in the order they fail in practice:
   rewrites    every `match` is a full-URL anchored regex; every location is
               an Egern reject token or a real URL
   jq          every response_jq filter is non-empty and parses with jq
-  mitm        every host a match pattern touches is covered by mitm.hostnames,
-              and mitm carries no host the patterns never touch
+  mitm        hostnames non-empty when the section exists — entries are copied
+              verbatim from upstream and users extend their own; no
+              pattern↔mitm coverage cross-check (that would mean guessing
+              how the runtime expands `*` in entries like `*xmind.*`)
 
 Exits 1 on any failure so it can gate a commit. Reads the module as text
 with an indentation scanner rather than a YAML library, so it runs anywhere
@@ -32,9 +34,6 @@ REJECT_TOKENS = {
     "http://reject-array/", "http://reject-img/", "http://reject-video/",
 }
 FORBIDDEN = re.compile(r"script\.hub|script-hub|Script-Hub-Org", re.I)
-HOST_IN_PATTERN = re.compile(r"https?\??:\\?/\\?/([a-z0-9][a-z0-9.\-]*\.[a-z]{2,})", re.I)
-CLASS_ESCAPE = re.compile(r"\\[dDwWsSbBpPxuU]")
-LITERAL_ESCAPE = re.compile(r"\\(.)")
 
 
 def read_module(path: Path) -> dict:
@@ -65,109 +64,6 @@ def matches(block: str) -> list[str]:
         m.group(1).strip().strip("'\"")
         for m in re.finditer(r"^\s*-?\s*match:\s*(.+)$", block, re.M)
     ]
-
-
-def hosts_in(patterns: list[str]) -> tuple[set[str], int]:
-    """Hosts a pattern set touches, plus how many patterns resolved to no name.
-
-    A pattern carrying a character class (`\\d`, `\\w`, `[\\w-]`) describes its
-    host rather than naming it — guessing a literal from it invents hosts that
-    were never in the module. Those are counted as dynamic and skipped.
-    """
-    found: set[str] = set()
-    dynamic = 0
-    for pattern in patterns:
-        if CLASS_ESCAPE.search(pattern):
-            dynamic += 1
-            continue
-        plain = LITERAL_ESCAPE.sub(r"\1", pattern)  # \/ \. \( \? \+ → the char
-        # expand top-level alternations: api.(revenuecat|rc-backup).com
-        # → api.revenuecat.com, api.rc-backup.com — one branch per expansion
-        for variant in expand_alternations(plain):
-            for hit in HOST_IN_PATTERN.finditer(variant):
-                if _captured_mid_label(variant, hit.end()):
-                    continue  # `api.uaa.*.com` stops at a dot, not a label
-                found.add(hit.group(1).lower())
-    return found, dynamic
-
-
-def _captured_mid_label(pattern: str, end: int) -> bool:
-    """True when the host capture stopped where the name keeps going.
-
-    `https?://api.uaa.*.com` captures `api.uaa` and leaves `.*.com` behind —
-    that prefix is not a hostname, and requiring `api.uaa` in mitm.hostnames
-    would fail on a module that is perfectly correct.
-    """
-    rest = pattern[end:end + 3]
-    if not rest:
-        return False
-    if rest[0].isalnum() or rest[0] in "-_":
-        return True
-    # `.` followed by a wildcard-ish token means the label is unfinished
-    return rest.startswith(".*") or rest.startswith(".+")
-
-
-GLOB_SPECIAL = re.compile(r"[.+]")
-
-
-def wildcard_matches(declared: str, host: str) -> bool:
-    """A declared mitm entry covers a host.
-
-    Literal equality; `*.base` also covers base itself (the form every module
-    uses); any other `*` is a glob across the whole name, which is how the
-    upstream `[mitm]` blocks write hosts like `*.uaa*.com` and `*xmind.*`
-    — a `*` there spans dots, so `*xmind.*` does cover `www.xmind.cn`.
-    """
-    if "*" not in declared:
-        return declared == host
-    if declared.startswith("*.") and "*" not in declared[2:]:
-        base = declared[2:]
-        return host == base or host.endswith("." + base)
-    pattern = GLOB_SPECIAL.sub(lambda m: "\\" + m.group(0), declared).replace("*", ".*")
-    return re.fullmatch(pattern, host) is not None
-
-
-def expand_alternations(pattern: str) -> list[str]:
-    """Split a regex with top-level (a|b) / (?:a|b) groups into branch permutations."""
-    # `(?:` is the form every module uses for plain alternation; treat it as a
-    # capturing group here so its branches still reach HOST_IN_PATTERN.
-    variants: list[str] = [pattern.replace("(?:", "(")]
-    for _ in range(10):  # bounded: nested groups can multiply
-        next_round: list[str] = []
-        for text in variants:
-            cut = _first_alternation(text)
-            if cut is None:
-                next_round.append(text)
-                continue
-            start, end = cut
-            for branch in text[start + 1:end].split("|"):
-                next_round.append(text[:start] + branch + text[end + 1:])
-        if next_round == variants:
-            break
-        variants = next_round
-        if len(variants) > 64:
-            break
-    return variants
-
-
-def _first_alternation(pattern: str) -> tuple[int, int] | None:
-    """Innermost span of a (...) group whose body contains a top-level |."""
-    stack: list[int] = []
-    for index, char in enumerate(pattern):
-        if char == "(" and not _is_group_start_escaped(pattern, index):
-            stack.append(index)
-        elif char == ")" and stack:
-            start = stack.pop()
-            body = pattern[start + 1:index]
-            if "|" in body and "(" not in body:
-                return start, index
-    return None
-
-
-def _is_group_start_escaped(pattern: str, index: int) -> bool:
-    """True for lookarounds and other (?...) special groups — leave them whole."""
-    following = pattern[index + 1:index + 2]
-    return following == "?" or (following == "P" and pattern[index + 2:index + 3] == "<")
 
 
 def mitm_hosts(block: str) -> set[str]:
@@ -287,21 +183,13 @@ def main() -> int:
         + matches(blocks.get("scriptings", ""))
         + matches(blocks.get("map_locals", ""))
     )
-    touched, dynamic = hosts_in(all_patterns)
     declared = mitm_hosts(blocks.get("mitm", ""))
-    for host in sorted(touched):
-        if not any(wildcard_matches(entry, host) for entry in declared):
-            problems.append(f"mitm: `{host}` is matched by a pattern but not in mitm.hostnames")
-    if dynamic:
-        # Some patterns spell their host with a character class, so the declared
-        # list cannot be diffed against them. Under-declaring still fails above;
-        # over-declaring cannot be judged, so it is not reported.
-        print(f"note: {dynamic} pattern(s) resolve to no literal host — "
-              f"unused-mitm-entry check skipped", file=sys.stderr)
-    else:
-        for entry in sorted(declared):
-            if not any(wildcard_matches(entry, host) for host in touched):
-                problems.append(f"mitm: `{entry}` is declared but no pattern touches it")
+    # mitm.hostnames 照抄上游 `[mitm]` 声明（`*xmind.*`、`cubox.*` 这种 QX 通配写法
+    # 原样进模块），用户还会按自己的需要增删 —— 校验器不做 pattern↔mitm 的覆盖
+    # 交叉检查：字面宿主对带通配符的声明怎么算覆盖、交替 TLD 展开成几个分支，
+    # 全是替 Egern 猜语义，猜错就冤枉一个正确的模块。声明非空即可。
+    if "mitm" in blocks and not declared:
+        problems.append("mitm: section present but hostnames is empty")
 
     if problems:
         print(f"FAIL {args.module}")
