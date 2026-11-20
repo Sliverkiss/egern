@@ -1,58 +1,94 @@
 ---
 name: writing-for-egern
 description: >
-  Build a native Egern module for a named app by absorbing the community's
-  Surge, Loon, Quantumult X and Egern modules for that app — 去广告, 重写,
-  移植, port, ad-block. Also fires when handing over any sgmodule / Loon
-  plugin / QX rewrite conf for conversion.
+  Egern 模块构建。触发于:要给某个 App 做去广告/去推广/解锁/重写模块;要合并、
+  更新、去重已有的 Egern 模块;贴来 .sgmodule / .plugin / .conf / .lpx /
+  .stoverride 或别家模块要求转换移植;提到某 App 在 Surge、Loon、Quantumult X、
+  Stash 上已有模块想搬到 Egern。关键词: Egern 模块、去广告、重写、移植、
+  sgmodule、loon plugin、qx conf。
 ---
 
 # Writing for Egern
 
-One job: turn every community module for one app into a single native
-Egern module — YAML only where possible, a script only when the logic
-earns it, nothing referencing someone else's runtime. Absorb, don't
-translate: optimize while merging, or you're just moving formats.
+One job: turn **every** community module for one app into a single native
+Egern module — YAML where possible, a script only when the logic earns it,
+nothing referencing someone else's runtime, authors credited to the
+originals. Absorb, don't translate: optimize while merging, or you're just
+moving formats.
 
 Field-level truth lives in the `egern-docs` skill — load its page for any
-section you emit. Everything below is the part `egern-docs` doesn't own:
-where sources live, how they merge, and the ladder that decides what each
-entry becomes.
+section you emit. This skill owns the rest: where sources live, how they
+merge, and the ladder deciding what each entry becomes.
+
+Four scripts carry the mechanical work; the judgement calls are yours.
 
 ## Pipeline
 
-**Gather.** Derive keys: English name, Chinese name, and — after the first
-find — the API domains inside it.
+**Gather — sweep, don't sample.** A handful of repos is a sample, not an
+absorption. Two phases, both scripted:
 
 ```bash
-python3 agents/skills/writing-for-egern/scripts/fetch-sources.py '中国人保' --out /tmp/sources
+bash scripts/gather.sh '中国人保' PICC epicc --out /tmp/picc
 ```
 
-Then manual GitHub code search per [reference/source-repos.md](reference/source-repos.md)
-(repo map + search patterns). Done when Surge, Loon, QX and Egern each
-have one module fetched or a recorded miss.
+Phase A searches the names across every client format; phase B harvests
+the API domains from phase A's hits and re-searches them, which reaches
+modules filed under a different app name. Raise `--max-calls` when the app
+is common; the summary lists what each format yielded. Searches are the only
+slow part (code search allows ~10/minute, so budget ~6s per call); fetches
+run in parallel and an interrupted run resumes where it stopped. Supplement
+with the repo map and query shapes in
+[reference/source-repos.md](reference/source-repos.md).
 
-**Read.** Every file, end to end. Extract (pattern, action, comment)
-tuples; note each source's date. Done when every fetched file has yielded
-its tuples.
+Done when the run reports hits for all four clients (Surge, Loon, QX,
+Egern) or names the missing ones, **and** you have read the summary's
+author and date list to know whose work you are absorbing.
 
-**Merge.** The merge policy in [reference/source-repos.md](reference/source-repos.md):
-normalize, dedup, resolve conflicts fail-closed. Done when no two
-entries share a normalized pattern.
+**Read — everything, including the junk.** Extract entries mechanically
+instead of eyeballing:
 
-**Convert.** Each entry passes the ladder in
-[reference/conversion-tables.md](reference/conversion-tables.md) before it
-becomes anything — fixed JSON edits become `response_jq` filters (verify
-with `jq -f` against a sample payload first), conditionless string
-surgery becomes `response_regex`, only real logic (branching, state,
-storage) is ported to `export default async (ctx)`. Icon: the app's App
-Store icon at 104×104, lookup rule in the tables. Done when every merged
-entry appears in the module exactly once, as the ladder's verdict, not
-the source's shape.
+```bash
+python3 scripts/extract.py /tmp/picc --only epicc
+```
 
-**Verify.** Every field matches the `egern-docs` page for that section;
-regexes full-URL anchored; MITM hostnames = exactly the domains the
-surviving entries touch. Report merged sources and anything dropped as
+`entries.json` is every entry as (pattern, action, target, source, author,
+date). `clusters.md` groups them by normalized pattern and flags conflicts.
+Done when `clusters.md` has been read end to end — the conflicts are the
+decisions, and the cross-source agreements are the safe core.
+
+**Merge.** Apply [reference/source-repos.md](reference/source-repos.md)'s
+policy to each cluster: dedupe agreements to one, resolve conflicts
+fail-closed and prefer the more specific action (a map-local pinning status
+and headers beats a bare reject-dict), keep newest-only endpoints. Done
+when every cluster in the report has a verdict — kept, replaced, or dropped
+— and none is silently ignored.
+
+**Convert.** Each surviving entry passes the ladder in
+[reference/conversion-tables.md](reference/conversion-tables.md): fixed
+JSON edits become `response_jq` filters, conditionless string surgery
+becomes `response_regex`, only real logic (branching, state, storage) is
+ported to `export default async (ctx)`. Metadata: `author` credits the
+originals; icon resolves by the tables' three-step rule.
+
+```bash
+python3 scripts/icon.py --sources /tmp/picc     # source icon, else App Store
+```
+
+Done when every merged entry appears in the module exactly once, as the
+ladder's verdict rather than the source's shape.
+
+**Verify.** Script the wiring checks before claiming done:
+
+```bash
+python3 scripts/verify.py modules/<app>.yaml --sample /tmp/payload.json
+```
+
+It gates: required metadata, non-empty author, no converter URLs, anchored
+full-URL regexes, valid reject tokens, jq syntax (and jq results, when a
+captured payload is supplied), and MITM hostnames exactly matching the
+hosts your patterns touch. `--sample` is worth the effort — capture one
+real response of each jq'd endpoint in Egern and re-run. Then report the
+merged sources, the conflicts resolved, and anything dropped as
 unportable, with the reason.
 
 Module skeleton — the ladder's output shapes, most common first:
@@ -60,14 +96,15 @@ Module skeleton — the ladder's output shapes, most common first:
 ```yaml
 name: <app> 去广告
 description: <what it blocks; note if app cache must be cleared>
-author: <original author(s) from the sources — we integrate, not originate>
+author: <original author(s) — we integrate, not originate>
 homepage: <this repo>
-icon: <source module's icon if one exists; else App Store 104×104 per the tables>
-# merged from: <repo@date → what it contributed, repo@date → …>
+icon: <source module's icon if one exists; else App Store 104×104>
+# merged from: <repo@date → what it contributed, …>
+# conflicts resolved: <what beat what, and why>
 
 url_rewrites:
   - match: '^https?://api\.example\.com/ads'
-    location: http://reject-dict/
+    location: http://reject/
 body_rewrites:
   - response_jq:
       match: '^https?://api\.example\.com/home'
@@ -88,6 +125,5 @@ mitm:
     - api.example.com
 ```
 
-Chinese app, Chinese sources → module comments in Chinese. A construct
-with no Egern equivalent is dropped with a comment naming it, never
-approximated.
+Chinese app, Chinese sources → module comments in Chinese. A construct with
+no Egern equivalent is dropped with a comment naming it, never approximated.

@@ -42,6 +42,20 @@ comma-joined list when contributions are co-equal.
 
 Egern `match` is a regex matched against the **full URL** including scheme.
 
+Regex flavor is undocumented; the engine behaves like the platform's
+NSRegularExpression (ICU), while Surge and Loon sources are written against
+PCRE. Scrub these on the way in:
+
+| PCRE construct | Portable rewrite |
+| --- | --- |
+| `(?>pop\|float)` atomic group | `(?:pop\|float)` |
+| `a++` `a*+` `a?+` possessive | `a+` `a*` `a?` |
+| `\K` keep-out | capture group + `replace` back reference |
+| `(?\|a\|b)` branch reset | plain alternatives |
+
+Seen in the wild: `^https?:\/\/smsp\.epicc\.com\.cn\/WAS\/(?>pop|float)Windows\/`
+— the atomic group never matches under ICU, so the entry silently does nothing.
+
 ## Map Local
 
 | Source | Syntax | Egern |

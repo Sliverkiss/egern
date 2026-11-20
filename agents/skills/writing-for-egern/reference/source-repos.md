@@ -14,9 +14,10 @@
 
 ## GitHub search patterns
 
-For an app, derive search keys first: English name (`PICC`), Chinese name
-(`中国人保`), and the API domains seen in any found module (`epicc.com.cn`).
-Then, in GitHub code search:
+`gather.sh` automates these; reach for them by hand when it misses —
+unusual naming, an app known only by a domain, a repo it cannot index. Keys:
+English name (`PICC`), Chinese name (`中国人保`), brand variants, and the API
+domains seen in any found module (`epicc.com.cn`). Then:
 
 - `"<chinese name>" extension:sgmodule` — Surge
 - `"<chinese name>" extension:plugin` — Loon

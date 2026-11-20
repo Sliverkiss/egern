@@ -1,10 +1,12 @@
 ---
 name: egern-docs
 description: >
-  Egern proxy client official documentation. Fire on any Egern configuration
-  work — Profile YAML (proxies, policy groups, rules, DNS, modules, rewrites,
-  HTTP captures, widgets) or Egern JavaScript scripting. Matches: Egern,
-  Profile.yaml, policy_groups, rule_set, egern://.
+  Egern 官方文档。触发于:写或改 Profile YAML 的任一段(proxies、
+  policy_groups、rules、rule_set、DNS、modules、url/header/body_rewrites、
+  map_locals、http_captures、widgets、compat_arguments);写或改 Egern
+  JavaScript 脚本(ctx.http、ctx.storage、ctx.notify、ctx.ssh、Widget DSL);
+  解释或排查已有 Egern 配置报错。关键词: Egern、Profile.yaml、policy_groups、
+  rule_set、egern://、egernapp.com。
 ---
 
 # Egern Documentation Skill

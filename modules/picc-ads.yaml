@@ -9,26 +9,42 @@ icon: https://raw.githubusercontent.com/leiyiyan/resource/main/icons/picc.png
 #   zirawell/R-Store (QX picc.conf) — 弹窗广告 reject
 #   Moli-X/Tool@2026-10-02 (Loon Kelee 镜像) — 脚本源之一
 #   GrandpaNiuu/GrandpaNiu (picc-insurance.sgmodule) — Kelee 同源镜像
+#   zirawell/R-Store + 8 个镜像 (epicc.sgmodule, 作者 zirawell) — smsp 弹窗/浮窗 map-local
 # absorption:
 #   主页/我的页面脚本（Sliverkiss 2024 QX/Surge 双 API 脚本）改写为原生 jq
 #   ——固定结构改写（清空字段、正则过滤数组），声明式优先，不保留脚本
 # conflicts resolved:
 #   zirawell adds windowsintegration/getMessage 弹窗广告 reject — included (newest, fail-closed)
 #   zirawell adds headLineInit response-body rewrite — dropped (homeInit jq covers the page)
+#   smsp 域的 friendlove2.png reject-img — dropped (单一聚合源, 且是图片资源, 风险大于收益)
 
 url_rewrites:
-  # 人保头条
+  # 人保头条（6 源一致）
   - match: ^https?:\/\/zgrb\.epicc\.com\.cn\/G-HAPP\/h\/headlines\/queryHeadlines
     location: http://reject/
-  # 启动开屏
-  - match: ^https?:\/\/zgrb\.epicc\.com\.cn\/G-HAPP\/a\/update\/startupPage\/v\d
-    location: http://reject-dict/
-  # 猜你喜欢
-  - match: ^https?:\/\/zgrb\.epicc\.com\.cn\/G-HAPP\/a\/config\/guessYouLike\/v\d
-    location: http://reject-dict/
-  # 弹窗广告
+  # 弹窗广告（zirawell 独有，最新）
   - match: ^https?:\/\/zgrb\.epicc\.com\.cn\/G-HAPP\/a\/config\/windowsintegration\/getMessage
     location: http://reject-dict/
+
+map_locals:
+  # 启动开屏（fmz200/axtyet 用 map-local 钉死 200 + JSON 头，比 reject-dict 更具体）
+  - match: ^https?:\/\/zgrb\.epicc\.com\.cn\/G-HAPP\/a\/update\/startupPage\/v\d
+    status_code: 200
+    headers:
+      Content-Type: application/json
+    body: '{}'
+  # 弹窗/浮窗（smsp 域，9 源一致；原正则用 PCRE 原子组 (?>pop|float)，Egern 引擎不支持，改为 (?:pop|float)）
+  - match: ^https?:\/\/smsp\.epicc\.com\.cn\/WAS\/(?:pop|float)Windows\/
+    status_code: 200
+    headers:
+      Content-Type: application/json
+    body: '{}'
+  # 猜你喜欢（同上）
+  - match: ^https?:\/\/zgrb\.epicc\.com\.cn\/G-HAPP\/a\/config\/guessYouLike\/v\d
+    status_code: 200
+    headers:
+      Content-Type: application/json
+    body: '{}'
 
 body_rewrites:
   # 主页:清空启动开屏配置,过滤推广模板(原 QX/Surge 脚本逻辑,jq 复刻)
@@ -46,3 +62,4 @@ body_rewrites:
 mitm:
   hostnames:
     - zgrb.epicc.com.cn
+    - smsp.epicc.com.cn
