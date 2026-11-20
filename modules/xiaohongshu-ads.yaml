@@ -1,0 +1,206 @@
+name: 小红书去广告
+description: 移除小红书开屏、信息流、搜索、关注页广告及运营弹窗，需清缓存或重装生效。
+author: fmz200, RuCu6, zirawell, blackmatrix7, ddgksf2013
+homepage: https://github.com/Sliverkiss/egern
+icon: https://raw.githubusercontent.com/luestr/IconResource/main/App_icon/120px/RedPaper.png
+# merged from（按时间新→旧，以最新为主）:
+#   fmz200/wool_scripts Scripts/xiaohongshu/xiaohongshu.js (2026-06-05, 镜像 2026-11-11) — 主干
+#     搜索五端点、整体配置、开屏、详情页小部件、关注页/关注列表、推荐关注、v6 信息流、
+#     评论区实况照片 → 本次取其中的广告分支
+#   RuCu6 小红书脚本 R2 (2026-02-14, 经 Repcz/Tool 镜像) — note/widgets 七键超集、
+#     v4/note/videofeed 的 `ad` 字段过滤、v5/recommend/user/explore
+#   zirawell/R-Store Res/Scripts/AntiAd/xiaohongshu.js v2.0 (2026-10-16) — 分支结构校订、
+#     search/hint + search/trending 的取值形态
+#   2026-11-02 ~ 11-16 声明式共识 (axtyet/Luminous、ifflagged/Darwin|Romeo、Repcz/Tool、
+#     树先生·奶思、Baby) — 运营弹窗/福利盒/惊喜盒/预加载的 reject-dict 层
+#   blackmatrix7/ios_rule_script、ddgksf2013 系 (49 源) — matrix_switches、statereport、
+#     httpdns、ads 上报端点的 reject 层
+# absorption:
+#   fmz200 578 行 + RuCu6 R2 408 行 + zirawell v2.0 全部分支都是固定结构改写
+#   （删键、清数组、按标记位过滤），按阶梯第一级全部降为 response_jq，零脚本残留
+#     —— 本模块不含任何 scriptings，纯声明式
+#   console.log / $notification 调试输出、Env 运行时、$.setdata 持久化：dropped
+#     （jq 只看 body 形态，不需要请求方法与跨请求状态）
+#   dropped 的整块功能（不属于"去广告"）：
+#     · 去水印：media_save_config.disable_watermark / ci.xiaohongshu.com/system_config/
+#       watermark → 另属"净化"，混进来会让模块名名不副实
+#     · 视频 / 实况照片下载解锁：依赖 $persistentStore 跨请求缓存（阶梯第三级），
+#       且与广告无关
+#     · 画质增强 2160px：同上，是画质而非广告
+#   ended 未采纳的端点：
+#     · edith/api/sns/v1/content/navigator（3 源 reject-dict）：底部导航整体配置，
+#       钉成 {} 会让主 tab 结构塌掉，风险大于收益
+#     · edith/api/sns/vd/user/teenager/status（49 源 reject-dict）：这是账号状态而非广告位，
+#       伪造它等于改账户状态，不做
+#     · vd/ 前缀（非 vd+）的 vd/note/redtube、vd/note/videofeed 等：仅 2025-08 的
+#       ddgksf2013 一代命中，已被 vd+ 取代，且原脚本源站已失效无法核对结构
+# conflicts resolved:
+#   search/notes 版本不钉：zirawell 不锁版本即可用，且过滤只保留 model_type=="note"，
+#     老结构缺该字段时结果为空 → 已确认该字段长期存在，锁版本反而漏
+#   homefeed 用标记位过滤（live_v2 / ads_info / card_icon / goods / has_related_goods）
+#     而非钉版本：无标记的条目原样保留，最坏情况是空操作，不会误杀
+#   note/widgets：fmz200 4 键 vs RuCu6 7 键 → 取 7 键并集（删不存在的键无害）
+#   ads/resource：reject-dict({}) 与 reject-200(空) 两派并存 → v1/vd+ 的 ads/resource 取
+#     reject-dict，上报类 record/engage 取 reject-200
+#   gslb、mediacloud 的 httpdns/gslb：22 源裸 reject(404) vs 7 源 reject(200) →
+#     取 404，这是客户端"解析失败→回落系统 DNS"的既有路径，比伪造空 JSON 安全
+#   ci.xiaohongshu.com/system_config/watermark：36 源 map-local tiny-gif vs 25 源
+#     reject-img → 整条不做（属去水印）
+# icon: luestr/IconResource RedPaper.png（26 源在用的官方图标，图标规则第 1 级）
+
+rules:
+  # 广告素材 CDN 域名级拦截：TLS 前生效，不需要解密也不进 mitm
+  - domain:
+      match: ads-img-al.xhscdn.com
+      policy: REJECT
+
+url_rewrites:
+  # 福利盒触发（开屏后弹的营销浮层）
+  - match: '^https?:\/\/www\.xiaohongshu\.com\/api\/marketing\/box\/trigger'
+    location: http://reject-dict/
+  # 页面引导横幅 / 笔记内引导
+  - match: '^https?:\/\/edith\.xiaohongshu\.com\/api\/sns\/(?:v2\/guide\/user_banner|v3\/note\/guide)'
+    location: http://reject-dict/
+  - match: '^https?:\/\/edith\.xiaohongshu\.com\/api\/sns\/vd\+\/(?:guide\/user_banner|note\/guide)'
+    location: http://reject-dict/
+  # 惊喜盒 / 开宝箱
+  - match: '^https?:\/\/edith\.xiaohongshu\.com\/api\/sns\/(?:v1|vd\+)\/surprisebox\/(?:get_style|open|submit_action)'
+    location: http://reject-dict/
+  # 详情页预加载：内容就是广告位配置
+  - match: '^https?:\/\/edith\.xiaohongshu\.com\/api\/sns\/vd\+\/note\/detailfeed\/preload'
+    location: http://reject-dict/
+  # 广告素材下发 / 嗨页图库
+  - match: '^https?:\/\/www\.xiaohongshu\.com\/api\/sns\/(?:v1\/ads\/resource|v2\/hey\/[^\/]+\/hey_gallery)'
+    location: http://reject-dict/
+  - match: '^https?:\/\/www\.xiaohongshu\.com\/api\/sns\/vd\+\/(?:ads\/resource|hey\/[^\/]+\/hey_gallery)'
+    location: http://reject-dict/
+  # 私信页横幅
+  - match: '^https?:\/\/edith\.xiaohongshu\.com\/api\/im\/v2\/get_banner_list'
+    location: http://reject-dict/
+  # 广告曝光/点击上报：不回内容，空 200 即可
+  - match: '^https?:\/\/www\.xiaohongshu\.com\/api\/sns\/v1\/(?:ads\/apple\/record|tag\/ads_engage)'
+    location: http://reject-200/
+  # 广告请求主入口（含 tag 位）
+  - match: '^https?:\/\/www\.xiaohongshu\.com\/api\/sns\/vd\+\/(?:tag\/)?ads(?:\?|$)'
+    location: http://reject-200/
+  # 搜索结果里的推荐位
+  - match: '^https?:\/\/(?:edith|so)\.xiaohongshu\.com\/api\/sns\/vd\+\/search\/notes\/recommend_info'
+    location: http://reject-200/
+  # 埋点上报与 A/B 开关表
+  - match: '^https?:\/\/referee\.xiaohongshu\.com\/vd\+\?\/statereport'
+    location: http://reject-200/
+  - match: '^https?:\/\/pages\.xiaohongshu\.com\/data\/native\/matrix_switches'
+    location: http://reject-200/
+  # HTTPDNS：拦掉后客户端回落系统 DNS，广告域解析不到，正常域不受影响
+  - match: '^https?:\/\/(?:gslb|mediacloud)\.xiaohongshu\.com\/api\/(?:gslb|httpdns)'
+    location: http://reject/
+
+body_rewrites:
+  # 整体配置：主题包 / 加载图 / 开屏 / 商城入口（fmz200 + zirawell 一致）
+  - response_jq:
+      match: '^https?:\/\/edith\.xiaohongshu\.com\/api\/sns\/(?:v[0-9]+|vd\+?)\/system_service\/config(?:\?|$)'
+      filter: >-
+        del(.data.app_theme, .data.loading_img, .data.splash, .data.store)
+  # 开屏广告：保留配置结构，把广告组的时间窗推到 2090 年（fmz200）
+  - response_jq:
+      match: '^https?:\/\/edith\.xiaohongshu\.com\/api\/sns\/(?:v[0-9]+|vd\+?)\/system_service\/splash(?:_config)?(?:\?|$)'
+      filter: >-
+        if (.data.ads_groups | type) == "array"
+        then .data.ads_groups |= map(
+          .start_time = 3818332800
+          | .end_time = 3818419199
+          | if (.ads | type) == "array"
+            then .ads |= map(.start_time = 3818332800 | .end_time = 3818419199)
+            else . end)
+        else . end
+  # 详情页小部件：合作品牌 / 活动步骤 / 猜你想搜 / 相关搜索（RuCu6 七键并集）
+  - response_jq:
+      match: '^https?:\/\/edith\.xiaohongshu\.com\/api\/sns\/(?:v[0-9]+|vd\+?)\/note\/widgets(?:\?|$)'
+      filter: >-
+        del(.data.cooperate_binds, .data.generic, .data.note_next_step, .data.widget_list,
+        .data.widgets_nbb, .data.widgets_ncb, .data.widgets_ndb)
+  # 搜索页运营横幅
+  - response_jq:
+      match: '^https?:\/\/(?:edith|so)\.xiaohongshu\.com\/api\/sns\/(?:v[0-9]+|vd\+?)\/search\/banner_list(?:\?|$)'
+      filter: >-
+        .data = {}
+  # 热搜榜
+  - response_jq:
+      match: '^https?:\/\/(?:edith|so)\.xiaohongshu\.com\/api\/sns\/(?:v[0-9]+|vd\+?)\/search\/hot_list(?:\?|$)'
+      filter: >-
+        .data.items = []
+  # 搜索框联想填充词
+  - response_jq:
+      match: '^https?:\/\/(?:edith|so)\.xiaohongshu\.com\/api\/sns\/(?:v[0-9]+|vd\+?)\/search\/hint(?:\?|$)'
+      filter: >-
+        .data.hint_words = []
+  # 搜索页顶部推荐词
+  - response_jq:
+      match: '^https?:\/\/(?:edith|so)\.xiaohongshu\.com\/api\/sns\/(?:v[0-9]+|vd\+?)\/search\/trending(?:\?|$)'
+      filter: >-
+        .data.queries = [] | .data.hint_word = {}
+  # 搜索结果：只留真实笔记，去掉 rec_query / rec_user 之类混排位
+  - response_jq:
+      match: '^https?:\/\/(?:edith|so)\.xiaohongshu\.com\/api\/sns\/(?:v[0-9]+|vd\+?)\/search\/notes(?:\?|$)'
+      filter: >-
+        .data.items |= ((. // []) | map(select(.model_type == "note")))
+  # 关注列表：去掉"可能感兴趣的人"
+  - response_jq:
+      match: '^https?:\/\/edith\.xiaohongshu\.com\/api\/sns\/v4\/followfeed(?:\?|$)'
+      filter: >-
+        .data.items |= ((. // []) | map(select(.recommend_reason != "recommend_user")))
+  # 关注页信息流：白名单只留互关动态
+  - response_jq:
+      match: '^https?:\/\/edith\.xiaohongshu\.com\/api\/sns\/v2\/user\/followings\/followfeed(?:\?|$)'
+      filter: >-
+        .data.items |= ((. // []) | map(select(.recommend_reason == "friend_post")))
+  # 用户主页"你可能感兴趣的人"
+  - response_jq:
+      match: '^https?:\/\/edith\.xiaohongshu\.com\/api\/sns\/v5\/recommend\/user\/follow_recommend(?:\?|$)'
+      filter: >-
+        if .data.title == "你可能感兴趣的人" then .data = {} else . end
+  # 发现页推荐流：清空
+  - response_jq:
+      match: '^https?:\/\/edith\.xiaohongshu\.com\/api\/sns\/v5\/recommend\/user\/explore(?:\?|$)'
+      filter: >-
+        .data = []
+  # 信息流：按标记位丢直播卡 / 赞助 / 带货 / 商品卡，其余原样保留（fmz200）
+  - response_jq:
+      match: '^https?:\/\/(?:edith|rec|www)\.xiaohongshu\.com\/api\/sns\/(?:v[0-9]+|vd\+?)\/homefeed(?:\?|$)'
+      filter: >-
+        .data |= ((. // []) | map(select(
+          (.model_type != "live_v2")
+          and (has("ads_info") | not)
+          and (has("card_icon") | not)
+          and (.has_related_goods != true)
+          and (((.note_attributes // []) | index("goods")) == null)
+        ) | del(.related_ques)))
+  # 视频流：带 ad 字段的条目是投放，其余非笔记类型一并去掉（RuCu6 R2）
+  - response_jq:
+      match: '^https?:\/\/(?:edith|rec|www)\.xiaohongshu\.com\/api\/sns\/v4\/note\/videofeed(?:\?|$)'
+      filter: >-
+        .data |= ((. // []) | map(select(.model_type == "note" and (has("ad") | not))))
+  # 整体 UI 配置：春节侧栏活动位（fmz200 + 树先生）
+  - response_jq:
+      match: '^https?:\/\/edith\.xiaohongshu\.com\/api\/sns\/v1\/system\/service\/ui\/config(?:\?|$)'
+      filter: >-
+        (if (.data.sideConfigHomepage.componentConfig | type) == "object"
+        then .data.sideConfigHomepage.componentConfig.sidebar_config_cny_2025 = {} else . end)
+        | (if (.data.sideConfigPersonalPage.componentConfig | type) == "object"
+        then .data.sideConfigPersonalPage.componentConfig.sidebar_config_cny_2025 = {} else . end)
+  # 长按菜单里的商品锚点（Baby / fmz200）
+  - response_jq:
+      match: '^https?:\/\/edith\.xiaohongshu\.com\/api\/sns\/v1\/note\/longpress(?:\?|$)'
+      filter: >-
+        del(.data.image_press_result.anchor_detail)
+
+mitm:
+  hostnames:
+    - edith.xiaohongshu.com
+    - www.xiaohongshu.com
+    - so.xiaohongshu.com
+    - rec.xiaohongshu.com
+    - referee.xiaohongshu.com
+    - pages.xiaohongshu.com
+    - gslb.xiaohongshu.com
+    - mediacloud.xiaohongshu.com

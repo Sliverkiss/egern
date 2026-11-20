@@ -33,6 +33,8 @@ REJECT_TOKENS = {
 }
 FORBIDDEN = re.compile(r"script\.hub|script-hub|Script-Hub-Org", re.I)
 HOST_IN_PATTERN = re.compile(r"https?\??:\\?/\\?/([a-z0-9][a-z0-9.\-]*\.[a-z]{2,})", re.I)
+CLASS_ESCAPE = re.compile(r"\\[dDwWsSbBpPxuU]")
+LITERAL_ESCAPE = re.compile(r"\\(.)")
 
 
 def read_module(path: Path) -> dict:
@@ -65,21 +67,41 @@ def matches(block: str) -> list[str]:
     ]
 
 
-def hosts_in(patterns: list[str]) -> set[str]:
+def hosts_in(patterns: list[str]) -> tuple[set[str], int]:
+    """Hosts a pattern set touches, plus how many patterns resolved to no name.
+
+    A pattern carrying a character class (`\\d`, `\\w`, `[\\w-]`) describes its
+    host rather than naming it — guessing a literal from it invents hosts that
+    were never in the module. Those are counted as dynamic and skipped.
+    """
     found: set[str] = set()
+    dynamic = 0
     for pattern in patterns:
-        plain = pattern.replace("\\", "").replace("\\/", "/")
+        if CLASS_ESCAPE.search(pattern):
+            dynamic += 1
+            continue
+        plain = LITERAL_ESCAPE.sub(r"\1", pattern)  # \/ \. \( \? \+ → the char
         # expand top-level alternations: api.(revenuecat|rc-backup).com
         # → api.revenuecat.com, api.rc-backup.com — one branch per expansion
         for variant in expand_alternations(plain):
             for host in HOST_IN_PATTERN.findall(variant):
                 found.add(host.lower())
-    return found
+    return found, dynamic
+
+
+def wildcard_matches(declared: str, host: str) -> bool:
+    """A declared mitm entry covers a host: literal equality, or `*.base` suffix."""
+    if declared.startswith("*."):
+        base = declared[2:]
+        return host == base or host.endswith("." + base)
+    return declared == host
 
 
 def expand_alternations(pattern: str) -> list[str]:
-    """Split a regex with top-level (a|b) groups into branch permutations."""
-    variants: list[str] = [pattern]
+    """Split a regex with top-level (a|b) / (?:a|b) groups into branch permutations."""
+    # `(?:` is the form every module uses for plain alternation; treat it as a
+    # capturing group here so its branches still reach HOST_IN_PATTERN.
+    variants: list[str] = [pattern.replace("(?:", "(")]
     for _ in range(10):  # bounded: nested groups can multiply
         next_round: list[str] = []
         for text in variants:
@@ -235,12 +257,21 @@ def main() -> int:
         + matches(blocks.get("scriptings", ""))
         + matches(blocks.get("map_locals", ""))
     )
-    touched = hosts_in(all_patterns)
+    touched, dynamic = hosts_in(all_patterns)
     declared = mitm_hosts(blocks.get("mitm", ""))
-    for host in sorted(touched - declared):
-        problems.append(f"mitm: `{host}` is matched by a pattern but not in mitm.hostnames")
-    for host in sorted(declared - touched):
-        problems.append(f"mitm: `{host}` is declared but no pattern touches it")
+    for host in sorted(touched):
+        if not any(wildcard_matches(entry, host) for entry in declared):
+            problems.append(f"mitm: `{host}` is matched by a pattern but not in mitm.hostnames")
+    if dynamic:
+        # Some patterns spell their host with a character class, so the declared
+        # list cannot be diffed against them. Under-declaring still fails above;
+        # over-declaring cannot be judged, so it is not reported.
+        print(f"note: {dynamic} pattern(s) resolve to no literal host — "
+              f"unused-mitm-entry check skipped", file=sys.stderr)
+    else:
+        for entry in sorted(declared):
+            if not any(wildcard_matches(entry, host) for host in touched):
+                problems.append(f"mitm: `{entry}` is declared but no pattern touches it")
 
     if problems:
         print(f"FAIL {args.module}")
