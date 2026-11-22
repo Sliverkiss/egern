@@ -9,8 +9,8 @@
 [![Platform](https://img.shields.io/badge/Platform-iOS%20%7C%20macOS%20%7C%20tvOS-8E8E93?logo=apple&logoColor=white&labelColor=0A0A0A)](https://egernapp.com/docs)
 [![License](https://img.shields.io/badge/License-仅供参考-green?labelColor=0A0A0A)](#免责声明)
 
-[![Modules](https://img.shields.io/badge/模块-8%20个-FF9F0A?labelColor=0A0A0A)](#模块列表)
-[![Rules](https://img.shields.io/badge/规则-570%2B%20条-FF375F?labelColor=0A0A0A)](#模块列表)
+[![Modules](https://img.shields.io/badge/模块-9%20个-FF9F0A?labelColor=0A0A0A)](#模块列表)
+[![Rules](https://img.shields.io/badge/规则-583%2B%20条-FF375F?labelColor=0A0A0A)](#模块列表)
 [![Zero Scripts](https://img.shields.io/badge/Zero-scriptings-30D158?labelColor=0A0A0A)](#设计原则)
 [![Docs](https://img.shields.io/badge/llms.txt-官方文档快照-5E5CE6?labelColor=0A0A0A)](agents/skills/egern-docs/)
 
@@ -32,6 +32,7 @@
 | **[广告联盟去广告](modules/ad-alliance.yaml)** | 穿山甲、优量汇、快手联盟三家广告 SDK 拦截 | 8 条 | app2smile, NobyDa |
 | **[RevenueCat 通用解锁](modules/revenuecat-unlock.yaml)** | RevenueCat 计费类 App 通用解锁 | 1 条 | Sliverkiss |
 | **[中国人保去广告](modules/picc-ads.yaml)** | 开屏、弹窗及页面推广位移除 | 5 条 | Sliverkiss |
+| **[iTunes 系列解锁](modules/itunes-unlock.yaml)** | 拦截 App Store 回执校验并转发到 Reven 网关，注入最贵内购套餐凭证 | 1 条 | [baby](https://github.com/Yu9191) |
 
 > 大部分去广告/解锁规则**需清缓存或重装 App** 才能生效。
 

@@ -1,0 +1,31 @@
+name: iTunes 系列解锁
+description: 拦截 buy.itunes.apple.com 的回执校验请求并透明转发到 Reven 网关，自动查询 App 内购商品并注入最贵套餐凭证，需清缓存或重装生效；可能导致 App Store 无法登录 ID。
+author: baby (Yu9191)
+homepage: https://github.com/Sliverkiss/egern
+icon: https://raw.githubusercontent.com/luestr/IconResource/main/Other_icon/120px/AppStore.png
+# 来源: reven.lovebabyforever.workers.dev/reven/iTunes.sgmodule
+#   原文只有一条 URL 重写（header 模式）+ 一个 MITM 主机名，本模块逐字照搬：
+#   · `header` → Egern url_rewrites 省略 status_code（省略即 Header 模式，透明转发）
+#   · `#!arguments` 四个键 → compat_arguments，占位符 `{{{Mock}}}` 语法与 Egern 一致
+#   · `[MITM] hostname = %APPEND% buy.itunes.apple.com` → mitm.hostnames（Egern 合并取并集，不需要 %APPEND%）
+
+compat_arguments:
+  Mock: "https://reven.lovebabyforever.workers.dev/reven"
+  Enabled: "true"
+  Expires: "2099-09-09"
+  Country: "HK"
+
+compat_arguments_desc: |-
+  Mock: Reven 网关地址，一般无需修改。
+  Enabled: 是否启用解锁。true = 拦截 verifyReceipt 并注入订阅凭证；false = 不修改响应，直接放行。
+  Expires: 订阅到期日期，格式 YYYY-MM-DD，默认 2099-09-09。
+  Country: 查询内购商品的 App Store 区域代码，默认 HK。
+
+url_rewrites:
+  # 回执校验透明转发到 Reven 网关，由网关回源查内购商品并返回伪造凭证
+  - match: '^https:\/\/buy\.itunes\.apple\.com\/verifyReceipt'
+    location: "{{{Mock}}}/buy.itunes.apple.com/verifyReceipt?enabled={{{Enabled}}}&expires={{{Expires}}}&country={{{Country}}}"
+
+mitm:
+  hostnames:
+    - buy.itunes.apple.com
